@@ -8,11 +8,24 @@ import { seedExerciseCatalog } from './exerciseCatalog.js'
 import { seedWorkoutSheets, seedSheetExercises } from './workoutSheets.js'
 import { seedExecutionLogs, seedExecutionSets } from './executionLogs.js'
 
+// Versão dos seeds — incremente quando quiser forçar reset dos mocks
+const SEED_VERSION = '3'
+const SEED_VERSION_KEY = 'fitprogress:seed_version'
+
 /**
  * Chama esta função uma vez no bootstrap da aplicação.
- * Se o LocalStorage já tiver dados, não sobrescreve.
+ * Reseta automaticamente se a versão do seed mudou.
  */
 export function initializeSeedData() {
+  const storedVersion = localStorage.getItem(SEED_VERSION_KEY)
+
+  // Se a versão mudou, apaga tudo e recarrega os seeds
+  if (storedVersion !== SEED_VERSION) {
+    console.info(`[FitProgress] Seed v${SEED_VERSION} detectado — resetando dados de demonstração.`)
+    Object.values(STORAGE_KEYS).forEach((key) => localStorage.removeItem(key))
+    localStorage.setItem(SEED_VERSION_KEY, SEED_VERSION)
+  }
+
   if (!getItem(STORAGE_KEYS.PROFILE)) {
     setItem(STORAGE_KEYS.PROFILE, seedProfile)
   }

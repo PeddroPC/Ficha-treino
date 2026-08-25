@@ -23,9 +23,8 @@ const useLogStore = create(
           logs: [
             ...state.logs,
             {
-              ...log,
-              id: `log-${Date.now()}`,
               startedAt: new Date().toISOString(),
+              ...log,                               // id do caller tem prioridade
             },
           ],
         })),
@@ -43,7 +42,10 @@ const useLogStore = create(
         set((state) => ({
           sets: [
             ...state.sets,
-            { ...exerciseSet, id: `es-${Date.now()}` },
+            {
+              id: `es-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+              ...exerciseSet,                       // id do caller sobrescreve se fornecido
+            },
           ],
         })),
 

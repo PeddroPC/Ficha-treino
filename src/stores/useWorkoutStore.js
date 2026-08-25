@@ -17,18 +17,17 @@ const useWorkoutStore = create(
       setSheets: (sheets) => set({ sheets }),
 
       addSheet: (sheet) =>
-        set((state) => ({
-          sheets: [
-            ...state.sheets,
-            {
-              ...sheet,
-              id: `sheet-${Date.now()}`,
-              isActive: true,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            },
-          ],
-        })),
+        (() => {
+          const id = `sheet-${Date.now()}`
+          const now = new Date().toISOString()
+          set((state) => ({
+            sheets: [
+              ...state.sheets,
+              { ...sheet, id, isActive: true, createdAt: now, updatedAt: now },
+            ],
+          }))
+          return id
+        })(),
 
       updateSheet: (id, updates) =>
         set((state) => ({
@@ -46,6 +45,19 @@ const useWorkoutStore = create(
 
       // ── SheetExercise Actions ────────────────────────────────
       setSheetExercises: (sheetExercises) => set({ sheetExercises }),
+
+      replaceSheetExercises: (sheetId, exercises) =>
+        set((state) => ({
+          sheetExercises: [
+            ...state.sheetExercises.filter((se) => se.sheetId !== sheetId),
+            ...exercises.map((exercise, index) => ({
+              ...exercise,
+              id: exercise.id ?? `se-${Date.now()}-${index}`,
+              sheetId,
+              order: index + 1,
+            })),
+          ],
+        })),
 
       addSheetExercise: (sheetExercise) =>
         set((state) => {

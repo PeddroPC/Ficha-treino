@@ -3,14 +3,27 @@ import useExerciseStore from "../../stores/useExerciseStore.js";
 import useWorkoutStore from "../../stores/useWorkoutStore.js";
 import { X, Trash2, Dumbbell } from "lucide-react";
 
-const FormFicha = ({ exercise = null, onSubmit, onCancel }) => {
+const FormFicha = ({ sheet = null, onSubmit, onCancel }) => {
   const exercises = useExerciseStore((s) => s.exercises);
   const addSheet = useWorkoutStore((s) => s.addSheet);
+  const updateSheet = useWorkoutStore((s) => s.updateSheet);
+  const sheetExercises = useWorkoutStore((s) => s.sheetExercises);
+  const replaceSheetExercises = useWorkoutStore((s) => s.replaceSheetExercises);
+
+  const initialExercises = sheet
+    ? sheetExercises
+        .filter((item) => item.sheetId === sheet.id)
+        .sort((a, b) => a.order - b.order)
+        .map((item) => ({
+          ...item,
+          name: exercises.find((exercise) => exercise.id === item.exerciseId)?.name ?? "Exercício",
+        }))
+    : [];
 
   const [formData, setFormData] = useState({
-    name: exercise?.name ?? "",
-    description: exercise?.description ?? "",
-    selectedExercises: exercise?.exercises ?? [],
+    name: sheet?.name ?? "",
+    description: sheet?.description ?? "",
+    selectedExercises: initialExercises,
   });
 
   const hasExercises = formData.selectedExercises.length > 0;
@@ -53,14 +66,17 @@ const FormFicha = ({ exercise = null, onSubmit, onCancel }) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const newSheetId = Date.now().toString(); 
-    
-    addSheet({
-      id: newSheetId,
+    const sheetData = {
       name: formData.name,
       description: formData.description,
-      exercises: formData.selectedExercises,
-    });
+    };
+    const sheetId = sheet?.id ?? addSheet(sheetData);
+
+    if (sheet) {
+      updateSheet(sheet.id, sheetData);
+    }
+
+    replaceSheetExercises(sheetId, formData.selectedExercises);
     
     if (onSubmit) onSubmit(); 
   };
@@ -95,7 +111,9 @@ const FormFicha = ({ exercise = null, onSubmit, onCancel }) => {
           {/* LADO ESQUERDO */}
           <div className="w-full md:w-[420px] shrink-0 flex flex-col">
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-slate-900">Nova ficha de treino</h2>
+              <h2 className="text-2xl font-bold text-slate-900">
+                {sheet ? "Editar ficha de treino" : "Nova ficha de treino"}
+              </h2>
               <p className="mt-1.5 text-sm text-slate-500">Preencha os dados principais e monte a estrutura do treino.</p>
             </div>
 
@@ -219,7 +237,7 @@ const FormFicha = ({ exercise = null, onSubmit, onCancel }) => {
             type="submit"
             className="rounded-lg bg-blue-600 px-8 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition shadow-sm"
           >
-            Salvar Ficha
+            {sheet ? "Salvar alterações" : "Adicionar ficha"}
           </button>
         </div>
       </form>

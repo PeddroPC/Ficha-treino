@@ -1,42 +1,70 @@
 // ============================================================
 // main.jsx — Entry point: inicializa mocks e monta o React
 // ============================================================
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import { StrictMode }    from 'react'
+import { createRoot }    from 'react-dom/client'
 import './index.css'
-import App from './App.jsx'
-import { initializeSeedData } from './mocks/index.js'
-import useProfileStore   from './stores/useProfileStore.js'
-import useExerciseStore  from './stores/useExerciseStore.js'
-import useWorkoutStore   from './stores/useWorkoutStore.js'
-import useLogStore       from './stores/useLogStore.js'
-import { getItem, STORAGE_KEYS } from './lib/localStorage.js'
+import App               from './App.jsx'
+import { seedProfile }          from './mocks/profile.js'
+import { seedExerciseCatalog }  from './mocks/exerciseCatalog.js'
+import { seedWorkoutSheets, seedSheetExercises } from './mocks/workoutSheets.js'
+import { seedExecutionLogs, seedExecutionSets }  from './mocks/executionLogs.js'
+import useProfileStore  from './stores/useProfileStore.js'
+import useExerciseStore from './stores/useExerciseStore.js'
+import useWorkoutStore  from './stores/useWorkoutStore.js'
+import useLogStore      from './stores/useLogStore.js'
 
-// 1. Inicializa o LocalStorage com dados semente (apenas na 1ª execução)
-initializeSeedData()
+// ── Versão dos dados seed ─────────────────────────────────
+// Incremente este número sempre que alterar os mocks.
+// Isso força a limpeza completa do localStorage na próxima carga.
+const SEED_VERSION     = '4'
+const SEED_VERSION_KEY = 'fitprogress:seed_version'
 
-// 2. Hidrata os stores Zustand com os dados do LocalStorage
-//    Os stores com `persist` middleware já se auto-hidratam via LocalStorage,
-//    mas aqui garantimos que os seeds foram carregados corretamente.
-const hydrateStores = () => {
-  const profile       = getItem(STORAGE_KEYS.PROFILE)
-  const exercises     = getItem(STORAGE_KEYS.EXERCISE_CATALOG, [])
-  const sheets        = getItem(STORAGE_KEYS.WORKOUT_SHEETS, [])
-  const sheetExercises = getItem(STORAGE_KEYS.SHEET_EXERCISES, [])
-  const logs          = getItem(STORAGE_KEYS.EXECUTION_LOGS, [])
-  const sets          = getItem(STORAGE_KEYS.EXECUTION_SETS, [])
-
-  if (profile)         useProfileStore.getState().setProfile(profile)
-  if (exercises.length) useExerciseStore.getState().setExercises(exercises)
-  if (sheets.length)   useWorkoutStore.getState().setSheets(sheets)
-  if (sheetExercises.length) useWorkoutStore.getState().setSheetExercises(sheetExercises)
-  if (logs.length)     useLogStore.getState().setLogs(logs)
-  if (sets.length)     useLogStore.getState().setSets(sets)
+// ── Limpa TODO o localStorage do app ─────────────────────
+function clearAllAppStorage() {
+  const keysToRemove = []
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i)
+    if (key && key.startsWith('fitprogress:')) {
+      keysToRemove.push(key)
+    }
+  }
+  keysToRemove.forEach((k) => localStorage.removeItem(k))
+  console.info(`[FitProgress] Limpou ${keysToRemove.length} chaves do LocalStorage.`)
 }
 
-hydrateStores()
+// ── Escreve os seeds diretamente nos stores Zustand ───────
+// (sem passar pelo localStorage — evita race condition com persist)
+function hydrateSeedsIntoStores() {
+  useProfileStore.getState().setProfile(seedProfile)
+  useExerciseStore.getState().setExercises(seedExerciseCatalog)
+  useWorkoutStore.getState().setSheets(seedWorkoutSheets)
+  useWorkoutStore.getState().setSheetExercises(seedSheetExercises)
+  useLogStore.getState().setLogs(seedExecutionLogs)
+  useLogStore.getState().setSets(seedExecutionSets)
+}
 
-// 3. Monta a aplicação
+// ── Bootstrap ─────────────────────────────────────────────
+const storedVersion = localStorage.getItem(SEED_VERSION_KEY)
+
+if (storedVersion !== SEED_VERSION) {
+  // 1. Apaga TODO o localStorage (inclui chaves do Zustand persist)
+  clearAllAppStorage()
+  // 2. Grava nova versão
+  localStorage.setItem(SEED_VERSION_KEY, SEED_VERSION)
+  // 3. Força os stores com os seeds novos
+  hydrateSeedsIntoStores()
+  console.info(`[FitProgress] Seeds v${SEED_VERSION} carregados (${seedExecutionLogs.length} logs, ${seedExecutionSets.length} sets).`)
+} else {
+  // Sessão normal: os stores Zustand persist já se auto-hidrataram
+  // Garante que dados existem (caso localStorage tenha sido limpo manualmente)
+  if (useLogStore.getState().logs.length === 0) {
+    hydrateSeedsIntoStores()
+    console.info('[FitProgress] Store vazio detectado — seeds recarregados.')
+  }
+}
+
+// ── Monta a aplicação ─────────────────────────────────────
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />
