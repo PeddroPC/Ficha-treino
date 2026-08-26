@@ -9,6 +9,7 @@ import ExercisesPage       from './pages/ExercisesPage.jsx'
 import LogHistoryPage      from './pages/LogHistoryPage.jsx'
 import ProfilePage         from './pages/ProfilePage.jsx'
 import ProgressaoPage      from './pages/ProgressaoPage.jsx'
+import BodyMetricsPage     from './pages/BodyMetricsPage.jsx'
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
           <Route path="fichas"          element={<WorkoutSheetsPage />} />
           <Route path="progressao"      element={<ProgressaoPage />} />
           <Route path="exercicios"      element={<ExercisesPage />} />
+          <Route path="metricas"        element={<BodyMetricsPage />} />
           <Route path="historico"       element={<LogHistoryPage />} />
           <Route path="perfil"          element={<ProfilePage />} />
         </Route>

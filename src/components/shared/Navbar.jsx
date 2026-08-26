@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { to: '/',           label: 'Dashboard' },
   { to: '/fichas',     label: 'Meus Treinos' },
   { to: '/progressao', label: 'Progressão' },
+  { to: '/metricas',   label: 'Métricas' },
   { to: '/exercicios', label: 'Exercícios' },
 ]
 
