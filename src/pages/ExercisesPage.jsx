@@ -7,7 +7,7 @@ import useExerciseStore from '../stores/useExerciseStore.js'
 import { MuscleGroupLabel, EquipmentLabel } from '../constants/enums.js'
 import { Dumbbell, Trash2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import FormExercise from '../components/Forms/FormExercise.jsx'
+import FormExercise from '../components/forms/FormExercise.jsx'
 import { ConfirmDeleteModal } from '../components/ui/ConfirmDeleteModal.jsx'
 
 export default function ExercisesPage() {
