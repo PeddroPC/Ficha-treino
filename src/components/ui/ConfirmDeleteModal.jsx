@@ -87,6 +87,7 @@ export function ConfirmDeleteModal({
           <button
             type="button"
             onClick={onClose}
+            data-testid="btn-cancel-delete"
             className="flex-1 border border-gray-300 text-gray-700 font-semibold py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-sm"
           >
             Cancelar
@@ -94,6 +95,7 @@ export function ConfirmDeleteModal({
           <button
             type="button"
             onClick={() => { onConfirm(); onClose() }}
+            data-testid="btn-confirm-delete"
             className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-xl transition-colors text-sm"
           >
             Sim, excluir

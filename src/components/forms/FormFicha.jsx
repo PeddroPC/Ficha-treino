@@ -100,6 +100,7 @@ const FormFicha = ({ sheet = null, onSubmit, onCancel }) => {
         onClick={onCancel}
         className="absolute right-6 top-6 text-slate-400 hover:text-slate-600 transition-colors"
         type="button"
+        aria-label="Fechar"
       >
         <X size={24} />
       </button>
@@ -199,6 +200,7 @@ const FormFicha = ({ sheet = null, onSubmit, onCancel }) => {
                         onClick={() => handleRemoveExercise(index)}
                         className="absolute top-4 right-4 text-slate-400 opacity-0 transition group-hover:opacity-100 hover:!text-red-500"
                         title="Remover exercício"
+                        aria-label="Remover exercício"
                       >
                         <Trash2 size={18} />
                       </button>

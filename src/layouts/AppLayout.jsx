@@ -25,6 +25,7 @@ export function AppLayout() {
       <button
         type="button"
         onClick={() => setQuickLogOpen(true)}
+        data-testid="btn-open-quick-log"
         className="
           fixed bottom-6 right-6 z-30
           flex items-center gap-2

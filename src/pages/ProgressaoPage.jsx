@@ -295,7 +295,7 @@ export default function ProgressaoPage() {
         <div className="flex-1 min-w-0 space-y-5">
 
           {/* 1. Gráfico dinâmico */}
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <div className="bg-white rounded-xl border border-gray-200 p-5" data-testid={chartMode === 'specific' ? 'chart-progression' : 'chart-muscle-group'}>
             <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
               <div>
                 <h2 className="text-xs font-bold text-gray-500 uppercase tracking-widest">
@@ -511,6 +511,7 @@ export default function ProgressaoPage() {
               />
               {search && (
                 <button type="button" onClick={() => setSearch('')}
+                  aria-label="Limpar busca"
                   className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                   <XIcon size={12} />
                 </button>

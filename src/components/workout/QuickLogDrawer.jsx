@@ -12,11 +12,13 @@ import useLogStore      from '../../stores/useLogStore.js'
 import useToastStore    from '../../stores/useToastStore.js'
 
 // ── Stepper numérico ─────────────────────────────────────────
-function NumericStepper({ label, value, onChange, step = 1, min = 0, unit = '' }) {
+function NumericStepper({ label, value, onChange, step = 1, min = 0, unit = '', fieldId = '' }) {
+  const testIdBase = fieldId || label.toLowerCase()
+  const labelId = `label-${testIdBase}-${Math.random().toString(36).substr(2, 9)}`
   return (
     <div className="flex items-center gap-2">
       {/* Label */}
-      <span className="text-xs text-gray-400 w-12 text-right shrink-0 font-medium">
+      <span id={labelId} className="text-xs text-gray-400 w-12 text-right shrink-0 font-medium">
         {label}
       </span>
 
@@ -24,14 +26,21 @@ function NumericStepper({ label, value, onChange, step = 1, min = 0, unit = '' }
       <button
         type="button"
         onClick={() => onChange(parseFloat((Math.max(min, value - step)).toFixed(2)))}
-        className="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 active:scale-95 flex items-center justify-center text-gray-700 transition-all shrink-0"
+        className="w-11 h-11 rounded-xl bg-gray-100 hover:bg-gray-200 active:scale-95 flex items-center justify-center text-gray-700 transition-all shrink-0"
         aria-label={`Diminuir ${label}`}
+        data-testid={`btn-decrease-${testIdBase}`}
       >
-        <Minus size={14} />
+        <Minus size={16} />
       </button>
 
       {/* Valor */}
-      <div className="flex-1 text-center">
+      <div 
+        className="flex-1 text-center" 
+        role="spinbutton" 
+        aria-labelledby={labelId} 
+        aria-valuenow={value}
+        aria-valuemin={min}
+      >
         <span className="text-lg font-bold text-gray-900 tabular-nums">{value}</span>
         {unit && <span className="text-xs text-gray-400 ml-0.5">{unit}</span>}
       </div>
@@ -40,10 +49,11 @@ function NumericStepper({ label, value, onChange, step = 1, min = 0, unit = '' }
       <button
         type="button"
         onClick={() => onChange(parseFloat((value + step).toFixed(2)))}
-        className="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 active:scale-95 flex items-center justify-center text-gray-700 transition-all shrink-0"
+        className="w-11 h-11 rounded-xl bg-gray-100 hover:bg-gray-200 active:scale-95 flex items-center justify-center text-gray-700 transition-all shrink-0"
         aria-label={`Aumentar ${label}`}
+        data-testid={`btn-increase-${testIdBase}`}
       >
-        <Plus size={14} />
+        <Plus size={16} />
       </button>
     </div>
   )
@@ -276,6 +286,7 @@ export function QuickLogDrawer({ isOpen, onClose }) {
                       <div className="space-y-2">
                         <NumericStepper
                           label="Carga"
+                          fieldId="weight"
                           value={data.weight}
                           onChange={(v) => updateInput(se.exerciseId, 'weight', v)}
                           step={2.5}
@@ -284,6 +295,7 @@ export function QuickLogDrawer({ isOpen, onClose }) {
                         />
                         <NumericStepper
                           label="Reps"
+                          fieldId="reps"
                           value={data.reps}
                           onChange={(v) => updateInput(se.exerciseId, 'reps', v)}
                           step={1}
@@ -291,6 +303,7 @@ export function QuickLogDrawer({ isOpen, onClose }) {
                         />
                         <NumericStepper
                           label="Séries"
+                          fieldId="sets"
                           value={data.sets}
                           onChange={(v) => updateInput(se.exerciseId, 'sets', v)}
                           step={1}
@@ -326,6 +339,7 @@ export function QuickLogDrawer({ isOpen, onClose }) {
             type="button"
             onClick={handleSave}
             disabled={!sheetId || saving}
+            data-testid="btn-save-log"
             className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 rounded-2xl transition-colors text-base"
           >
             <Save size={17} />
