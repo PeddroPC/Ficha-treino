@@ -13,7 +13,7 @@ export function AppLayout() {
   const [quickLogOpen, setQuickLogOpen] = useState(false)
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col w-full max-w-full overflow-x-hidden">
       <Navbar />
 
       {/* Conteúdo principal — pb extra para não ficar atrás do FAB */}
@@ -31,7 +31,7 @@ export function AppLayout() {
           flex items-center gap-2
           bg-blue-600 hover:bg-blue-700 active:scale-95
           text-white font-bold
-          px-5 py-3.5 rounded-2xl
+          px-5 py-3.5 min-h-[44px] rounded-2xl
           shadow-xl hover:shadow-2xl
           transition-all duration-150
         "
@@ -39,7 +39,7 @@ export function AppLayout() {
       >
         <Zap size={17} />
         <span className="hidden sm:inline">Registro Rápido</span>
-        <span className="sm:hidden">+</span>
+        <span className="sm:hidden text-2xl leading-none">+</span>
       </button>
 
       {/* ── Drawers ─────────────────────────────────────────── */}

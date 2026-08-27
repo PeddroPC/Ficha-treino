@@ -51,7 +51,7 @@ export function FormMeasurement({ measurement = null, onSubmit, onClose }) {
   }
 
   const inputCls =
-    'w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 outline-none ' +
+    'w-full min-h-[44px] rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-base text-gray-900 outline-none ' +
     'focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-gray-300'
 
   return (
@@ -80,9 +80,9 @@ export function FormMeasurement({ measurement = null, onSubmit, onClose }) {
             type="button"
             onClick={onClose}
             aria-label="Fechar"
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+            className="w-11 h-11 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
           >
-            <X size={16} />
+            <X size={20} />
           </button>
         </div>
 
@@ -154,14 +154,14 @@ export function FormMeasurement({ measurement = null, onSubmit, onClose }) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 border border-gray-200 text-gray-600 font-semibold py-3 rounded-xl hover:bg-gray-50 transition-colors text-sm"
+              className="flex-1 min-h-[44px] border border-gray-200 text-gray-600 font-semibold py-3 rounded-xl hover:bg-gray-50 transition-colors text-base"
             >
               Cancelar
             </button>
             <button
               type="submit"
               data-testid="btn-save-measurement"
-              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl transition-colors text-sm"
+              className="flex-1 min-h-[44px] bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl transition-colors text-base"
             >
               {isEditing ? 'Salvar Alterações' : 'Salvar Avaliação'}
             </button>

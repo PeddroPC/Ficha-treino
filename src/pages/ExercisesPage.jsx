@@ -53,7 +53,7 @@ export default function ExercisesPage() {
             type="button"
             onClick={() => setIsFormOpen(true)}
             data-testid="btn-new-exercise"
-            className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors"
+            className="bg-blue-600 hover:bg-blue-700 text-white text-base font-medium px-4 min-h-[44px] rounded-xl transition-colors flex items-center justify-center"
           >
             + Novo Exercício
           </button>
@@ -70,7 +70,7 @@ export default function ExercisesPage() {
                 </h2>
                 <p className="mt-1 text-sm text-gray-500">Preencha os dados do exercício.</p>
               </div>
-              <button type="button" onClick={closeForm} className="text-2xl leading-none text-gray-400 hover:text-gray-700" aria-label="Fechar formulário">&times;</button>
+              <button type="button" onClick={closeForm} className="w-11 h-11 flex items-center justify-center text-3xl leading-none text-gray-400 hover:text-gray-700" aria-label="Fechar formulário">&times;</button>
             </div>
             <FormExercise exercise={editingExercise} onSubmit={handleSubmit} onCancel={closeForm} />
           </div>
@@ -116,7 +116,7 @@ export default function ExercisesPage() {
                   onClick={() => { setEditingExercise(ex); setIsFormOpen(true) }}
                   data-testid={`btn-edit-exercise-${ex.id}`}
                   aria-label={`Editar exercício ${ex.name}`}
-                  className="rounded-lg px-2 py-1 text-xs font-medium text-blue-600 transition hover:bg-blue-50"
+                  className="rounded-lg px-3 min-h-[44px] min-w-[44px] flex items-center justify-center text-sm font-medium text-blue-600 transition hover:bg-blue-50"
                 >
                   Editar
                 </button>
@@ -125,7 +125,7 @@ export default function ExercisesPage() {
                   onClick={() => setDeletingExercise(ex)}
                   data-testid={`btn-delete-exercise-${ex.id}`}
                   aria-label={`Excluir exercício ${ex.name}`}
-                  className="rounded-lg px-2 py-1 text-xs font-medium text-red-500 transition hover:bg-red-50"
+                  className="rounded-lg px-3 min-h-[44px] min-w-[44px] flex items-center justify-center text-sm font-medium text-red-500 transition hover:bg-red-50"
                 >
                   Excluir
                 </button>

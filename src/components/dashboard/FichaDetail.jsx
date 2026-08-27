@@ -71,30 +71,35 @@ export function FichaDetail({ sheetId }) {
           Nenhum exercício cadastrado
         </div>
       ) : (
-        <div className="overflow-auto flex-1">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b border-gray-100">
-                <th className="text-left py-2 text-gray-400 font-semibold">Exercício</th>
-                <th className="text-center py-2 text-gray-400 font-semibold">Carga</th>
-                <th className="text-center py-2 text-gray-400 font-semibold">Reps</th>
-                <th className="text-center py-2 text-gray-400 font-semibold">Sets</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row, i) => (
-                <tr
-                  key={row.id}
-                  className={`border-b border-gray-50 ${i % 2 === 0 ? '' : 'bg-gray-50/50'}`}
-                >
-                  <td className="py-2 pr-2 text-gray-800 font-medium leading-tight">{row.name}</td>
-                  <td className="py-2 text-center text-blue-600 font-bold">{row.weight}</td>
-                  <td className="py-2 text-center text-gray-600">{row.reps}</td>
-                  <td className="py-2 text-center text-gray-500">{row.sets}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="overflow-y-auto flex-1 flex flex-col gap-3 pr-1">
+          {rows.map((row) => (
+            <div
+              key={row.id}
+              className="bg-gray-50 border border-gray-100 rounded-xl p-4 flex flex-col gap-2"
+            >
+              <div className="flex justify-between items-start gap-2">
+                <h3 className="text-base font-bold text-gray-800 leading-tight">{row.name}</h3>
+                <span className="bg-blue-100 text-blue-700 text-sm font-bold px-2 py-1 rounded-lg shrink-0">
+                  {row.weight}
+                </span>
+              </div>
+              
+              <div className="flex flex-wrap gap-2 text-sm">
+                <div className="bg-white border border-gray-200 rounded-lg px-3 py-1.5 flex-1 flex flex-col items-center justify-center">
+                  <span className="text-gray-400 text-xs font-semibold uppercase">Reps</span>
+                  <span className="text-gray-700 font-bold">{row.reps}</span>
+                </div>
+                <div className="bg-white border border-gray-200 rounded-lg px-3 py-1.5 flex-1 flex flex-col items-center justify-center">
+                  <span className="text-gray-400 text-xs font-semibold uppercase">Sets</span>
+                  <span className="text-gray-700 font-bold">{row.sets}</span>
+                </div>
+                <div className="bg-white border border-gray-200 rounded-lg px-3 py-1.5 flex-1 flex flex-col items-center justify-center">
+                  <span className="text-gray-400 text-xs font-semibold uppercase">Descanso</span>
+                  <span className="text-gray-700 font-bold">{row.rest}</span>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

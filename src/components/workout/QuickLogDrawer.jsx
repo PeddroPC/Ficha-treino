@@ -217,10 +217,10 @@ export function QuickLogDrawer({ isOpen, onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+            className="w-11 h-11 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
             aria-label="Fechar painel"
           >
-            <X size={16} />
+            <X size={20} />
           </button>
         </div>
 
@@ -239,7 +239,7 @@ export function QuickLogDrawer({ isOpen, onClose }) {
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                  className="w-full text-base min-h-[44px] border border-gray-200 rounded-xl px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                 />
               </div>
               <div>
@@ -250,7 +250,7 @@ export function QuickLogDrawer({ isOpen, onClose }) {
                   id="ql-sheet"
                   value={sheetId}
                   onChange={(e) => setSheetId(e.target.value)}
-                  className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                  className="w-full text-base min-h-[44px] border border-gray-200 rounded-xl px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                 >
                   <option value="">Selecione...</option>
                   {activeSheets.map((s) => (
@@ -340,7 +340,7 @@ export function QuickLogDrawer({ isOpen, onClose }) {
             onClick={handleSave}
             disabled={!sheetId || saving}
             data-testid="btn-save-log"
-            className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 rounded-2xl transition-colors text-base"
+            className="w-full min-h-[44px] flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 rounded-2xl transition-colors text-lg"
           >
             <Save size={17} />
             {saving ? 'Salvando...' : 'Salvar Registro'}
