@@ -71,7 +71,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── 3 colunas: Fichas | Gráfico | Detalhes ─────────── */}
-      <div className="grid gap-4" style={{ gridTemplateColumns: '220px 1fr 240px' }}>
+      <div className="flex flex-col xl:grid xl:gap-4 xl:grid-cols-[220px_1fr_240px] gap-4">
         {/* Col 1 – Minhas Fichas */}
         <FichasList
           selectedSheetId={selectedSheetId}

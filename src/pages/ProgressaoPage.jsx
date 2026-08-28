@@ -289,10 +289,10 @@ export default function ProgressaoPage() {
         subtitle="Acompanhe a evolução das suas cargas ao longo do tempo"
       />
 
-      <div className="flex gap-5 items-start">
+      <div className="flex flex-col lg:flex-row gap-5 items-start">
 
         {/* ── Coluna principal ────────────────────────────── */}
-        <div className="flex-1 min-w-0 space-y-5">
+        <div className="flex-1 w-full min-w-0 space-y-5">
 
           {/* 1. Gráfico dinâmico */}
           <div className="bg-white rounded-xl border border-gray-200 p-5" data-testid={chartMode === 'specific' ? 'chart-progression' : 'chart-muscle-group'}>
@@ -427,7 +427,7 @@ export default function ProgressaoPage() {
         </div>
 
         {/* ── Sidebar direita ──────────────────────────────── */}
-        <div className="w-72 shrink-0 space-y-4">
+        <div className="w-full lg:w-72 shrink-0 space-y-4">
 
           {/* Resumo de Evolução */}
           <div className="bg-white rounded-xl border border-gray-200 p-4">

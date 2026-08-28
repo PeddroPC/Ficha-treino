@@ -1,4 +1,5 @@
 {
+  "name": "ficha-de-treino",
   "rewrites": [
     {
       "source": "/(.*)",
