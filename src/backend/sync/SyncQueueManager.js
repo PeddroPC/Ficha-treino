@@ -1,14 +1,11 @@
 import useSyncQueueStore from '../../stores/useSyncQueueStore.js'
+import { ExerciseRepository } from '../repositories/ExerciseRepository.js'
 
 /**
  * SyncQueueManager
  * 
  * Gerencia o processamento da fila de sincronização offline-first.
  * Escaneia tarefas 'pending' e tenta processá-las.
- * 
- * NOTA (Fase 3): Conforme especificação, ainda NÃO estamos conectando 
- * ao Supabase real nem aos Repositories. O processamento aqui é simulado 
- * para validar os estados (pending -> processing -> completed/failed) e o retry.
  */
 class SyncQueueManager {
   constructor() {
@@ -33,21 +30,43 @@ class SyncQueueManager {
     console.log(`[SyncQueueManager] Iniciando processamento de ${pendingTasks.length} tarefa(s) pendente(s).`)
 
     for (const task of pendingTasks) {
-      // 1. Marca como processing
       store.updateTaskStatus(task.id, 'processing')
 
       try {
-        // 2. Simula chamada de rede (Substituir pelos Repositories na próxima fase)
-        await this._simulateNetworkCall(task)
+        await this._processTask(task)
         
-        // 3. Sucesso: Marca como completed
         store.updateTaskStatus(task.id, 'completed')
         console.log(`[SyncQueueManager] Tarefa ${task.id} completada com sucesso.`)
 
       } catch (error) {
-        // 4. Erro: Incrementa retry ou falha definitiva
-        store.markTaskFailed(task.id)
-        console.error(`[SyncQueueManager] Erro na tarefa ${task.id}:`, error.message)
+        console.error(`[SyncQueueManager] Erro na tarefa ${task.id}:`, error)
+
+        // 1. Erros de rede (Failed to fetch) ou Timeout
+        const isNetworkError = error.message.includes('Failed to fetch') || error.message.includes('Network Error')
+        
+        // 2. Erros de permissão/RLS
+        const isAuthError = error.message.includes('autenticado') || (error.code && error.code.startsWith('42501'))
+
+        // 3. Erros permanentes HTTP (4xx) do Supabase (ex: foreign key violation = 23503)
+        const isPermanentError = error.code && (error.code.startsWith('23') || error.code === '400')
+
+        if (isNetworkError) {
+          console.warn('[SyncQueueManager] Erro de rede detectado. Fila pausada. Retornando task para pending.')
+          store.updateTaskStatus(task.id, 'pending')
+          break // ABORTA O LOOP PARA MANTER A ORDEM
+        } else if (isAuthError) {
+          console.error('[SyncQueueManager] Erro de autenticação/RLS. Fila pausada.')
+          store.updateTaskStatus(task.id, 'pending')
+          break // Auth é pre-requisito
+        } else if (isPermanentError) {
+          console.error('[SyncQueueManager] Erro permanente (ex: schema, fk, validação). Task marcada como failed permanente para não travar a fila.')
+          for (let i = task.retryCount; i < 5; i++) {
+             store.markTaskFailed(task.id) // Força atingir 5 retries para virar failed
+          }
+        } else {
+          // Erros genéricos ou temporários (5xx)
+          store.markTaskFailed(task.id)
+        }
       }
     }
 
@@ -55,6 +74,19 @@ class SyncQueueManager {
     useSyncQueueStore.getState().clearCompleted()
 
     this.isProcessing = false
+  }
+
+  async _processTask(task) {
+    if (task.table === 'exercises') {
+      if (task.action === 'upsert') {
+        await ExerciseRepository.upsert(task.payload)
+      } else if (task.action === 'delete') {
+        await ExerciseRepository.delete(task.entityId)
+      }
+    } else {
+      // Mock para entidades futuras não implementadas
+      await this._simulateNetworkCall(task)
+    }
   }
 
   /**

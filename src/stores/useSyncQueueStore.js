@@ -29,13 +29,18 @@ const useSyncQueueStore = create(
       /**
        * Adiciona uma nova tarefa à fila
        */
-      enqueue: (table, action, payload) => {
+      enqueue: (table, action, payload, entityId = null) => {
         const id = generateId('task')
         const now = new Date().toISOString()
+        
+        // Se entityId não for fornecido, tenta extrair do payload
+        const finalEntityId = entityId || (payload && payload.id) || null
+        
         const newTask = {
           id,
           table,
           action,
+          entityId: finalEntityId,
           payload,
           status: 'pending',
           retryCount: 0,
