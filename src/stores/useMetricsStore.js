@@ -6,12 +6,13 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { STORAGE_KEYS } from '../lib/localStorage.js'
+import { generateId } from '../utils/idGenerator.js'
 
 /**
  * Gera um ID único para a avaliação
  * @returns {string}
  */
-const genId = () => `metric-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+const genId = () => generateId('metric')
 
 const useMetricsStore = create(
   persist(

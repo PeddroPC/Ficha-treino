@@ -5,6 +5,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { STORAGE_KEYS } from '../lib/localStorage.js'
+import { generateId } from '../utils/idGenerator.js'
 
 const useExerciseStore = create(
   persist(
@@ -21,7 +22,7 @@ const useExerciseStore = create(
             ...state.exercises,
             {
               ...exercise,
-              id: `ex-custom-${Date.now()}`,
+              id: generateId('ex-custom'),
               isCustom: true,
               createdAt: new Date().toISOString(),
             },

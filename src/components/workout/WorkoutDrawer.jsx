@@ -9,6 +9,7 @@ import useWorkoutSessionStore from '../../stores/useWorkoutSessionStore.js'
 import useWorkoutStore        from '../../stores/useWorkoutStore.js'
 import useExerciseStore       from '../../stores/useExerciseStore.js'
 import useLogStore            from '../../stores/useLogStore.js'
+import { HistoryContext }     from './HistoryContext.jsx'
 
 // ── Botão +/- com grande área de toque ──────────────────────
 function Stepper({ label, value, onChange, step = 1, min = 0, unit = '' }) {
@@ -253,6 +254,9 @@ export function WorkoutDrawer() {
                   <span className="text-yellow-300 text-sm font-bold">Novo Recorde Pessoal! 🏆</span>
                 </div>
               )}
+
+              {/* Histórico Contextual da última sessão (antes dos steppers) */}
+              <HistoryContext exerciseId={currentSheetEx.exerciseId} currentLogId={logId} dark={true} />
 
               {/* Steppers */}
               <div className="flex flex-col gap-8 mb-8">

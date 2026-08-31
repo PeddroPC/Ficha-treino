@@ -10,6 +10,8 @@ import useWorkoutStore  from '../../stores/useWorkoutStore.js'
 import useExerciseStore from '../../stores/useExerciseStore.js'
 import useLogStore      from '../../stores/useLogStore.js'
 import useToastStore    from '../../stores/useToastStore.js'
+import { HistoryContext } from './HistoryContext.jsx'
+import { generateId } from '../../utils/idGenerator.js'
 
 // ── Stepper numérico ─────────────────────────────────────────
 function NumericStepper({ label, value, onChange, step = 1, min = 0, unit = '', fieldId = '' }) {
@@ -137,7 +139,7 @@ export function QuickLogDrawer({ isOpen, onClose }) {
     if (!sheetId) return
     setSaving(true)
 
-    const logId     = `log-ql-${Date.now()}`
+    const logId     = generateId('log-ql')
     const startedAt = `${date}T07:00:00Z`
     const finishedAt= `${date}T08:30:00Z`
 
@@ -281,6 +283,9 @@ export function QuickLogDrawer({ isOpen, onClose }) {
                         </span>
                         <p className="text-sm font-semibold text-gray-800 leading-tight">{ex.name}</p>
                       </div>
+
+                      {/* Histórico Contextual */}
+                      <HistoryContext exerciseId={se.exerciseId} currentLogId={null} dark={false} />
 
                       {/* Steppers */}
                       <div className="space-y-2">

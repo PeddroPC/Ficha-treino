@@ -3,6 +3,7 @@
 // Controla a sessão de treino ativa (Modo Treino / Drawer)
 // ============================================================
 import { create } from 'zustand'
+import { generateId } from '../utils/idGenerator.js'
 
 const useWorkoutSessionStore = create((set, get) => ({
   // ── State ────────────────────────────────────────────────
@@ -16,7 +17,7 @@ const useWorkoutSessionStore = create((set, get) => ({
 
   /** Abre o drawer e inicia uma nova sessão */
   startSession: (sheetId) => {
-    const logId = `log-${Date.now()}`
+    const logId = generateId('log')
     set({
       isOpen: true,
       sheetId,

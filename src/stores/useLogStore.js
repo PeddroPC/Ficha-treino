@@ -6,6 +6,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { STORAGE_KEYS } from '../lib/localStorage.js'
+import { generateId } from '../utils/idGenerator.js'
 
 const useLogStore = create(
   persist(
@@ -43,7 +44,7 @@ const useLogStore = create(
           sets: [
             ...state.sets,
             {
-              id: `es-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+              id: generateId('es'),
               ...exerciseSet,                       // id do caller sobrescreve se fornecido
             },
           ],
@@ -105,6 +106,29 @@ const useLogStore = create(
       /** Séries de um log específico */
       getSetsByLog: (logId) =>
         get().sets.filter((s) => s.logId === logId),
+
+      /** 
+       * Retorna as séries do último treino de um exercício específico, 
+       * ignorando a sessão atual. 
+       */
+      getLastSessionSets: (exerciseId, currentLogId = null) => {
+        const { logs, sets } = get()
+        // 1. Achar todos os logs que têm esse exercício e não são o atual
+        const logsWithEx = logs.filter(log => {
+          if (currentLogId && log.id === currentLogId) return false;
+          return sets.some(s => s.logId === log.id && s.exerciseId === exerciseId);
+        });
+        
+        if (logsWithEx.length === 0) return null; // Sem histórico
+
+        // 2. Ordenar por data decrescente e pegar o mais recente
+        const lastLog = logsWithEx.sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt))[0];
+
+        // 3. Retornar as séries desse log, ordenadas pelo número da série
+        return sets
+          .filter(s => s.logId === lastLog.id && s.exerciseId === exerciseId)
+          .sort((a, b) => a.setNumber - b.setNumber);
+      },
     }),
     {
       name: `fitprogress:${STORAGE_KEYS.EXECUTION_LOGS}`,

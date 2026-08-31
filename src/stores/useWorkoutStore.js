@@ -5,6 +5,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { STORAGE_KEYS } from '../lib/localStorage.js'
+import { generateId } from '../utils/idGenerator.js'
 
 const useWorkoutStore = create(
   persist(
@@ -18,7 +19,7 @@ const useWorkoutStore = create(
 
       addSheet: (sheet) =>
         (() => {
-          const id = `sheet-${Date.now()}`
+          const id = generateId('sheet')
           const now = new Date().toISOString()
           set((state) => ({
             sheets: [
@@ -52,7 +53,7 @@ const useWorkoutStore = create(
             ...state.sheetExercises.filter((se) => se.sheetId !== sheetId),
             ...exercises.map((exercise, index) => ({
               ...exercise,
-              id: exercise.id ?? `se-${Date.now()}-${index}`,
+              id: exercise.id ?? generateId('se'),
               sheetId,
               order: index + 1,
             })),
@@ -69,7 +70,7 @@ const useWorkoutStore = create(
               ...state.sheetExercises,
               {
                 ...sheetExercise,
-                id: `se-${Date.now()}`,
+                id: generateId('se'),
                 order: currentMax + 1,
               },
             ],
