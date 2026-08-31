@@ -60,4 +60,5 @@ export const STORAGE_KEYS = Object.freeze({
   EXECUTION_LOGS: 'executionLogs',
   EXECUTION_SETS: 'executionSets',
   BODY_METRICS: 'bodyMetrics',
+  SYNC_QUEUE: 'syncQueue',
 })
