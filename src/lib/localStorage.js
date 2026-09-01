@@ -1,16 +1,18 @@
 // ============================================================
 // localStorage.js — Camada de acesso ao LocalStorage
-// Abstrai JSON.parse/stringify e trata erros de forma uniforme.
-// Substituível por chamadas a uma API REST sem alterar os stores.
 // ============================================================
 
 const PREFIX = 'fitprogress:'
 
-/**
- * Lê um valor do LocalStorage e o desserializa.
- * @param {string} key
- * @param {*} defaultValue  Retornado quando a chave não existe ou ocorre erro.
- */
+export function getActiveUserId() {
+  return localStorage.getItem(`${PREFIX}active_user_id`) || 'legacy'
+}
+
+export function setActiveUserId(id) {
+  if (id) localStorage.setItem(`${PREFIX}active_user_id`, id)
+  else localStorage.removeItem(`${PREFIX}active_user_id`)
+}
+
 export function getItem(key, defaultValue = null) {
   try {
     const raw = localStorage.getItem(`${PREFIX}${key}`)
@@ -21,11 +23,6 @@ export function getItem(key, defaultValue = null) {
   }
 }
 
-/**
- * Serializa e grava um valor no LocalStorage.
- * @param {string} key
- * @param {*} value
- */
 export function setItem(key, value) {
   try {
     localStorage.setItem(`${PREFIX}${key}`, JSON.stringify(value))
@@ -34,21 +31,36 @@ export function setItem(key, value) {
   }
 }
 
-/**
- * Remove uma chave do LocalStorage.
- * @param {string} key
- */
 export function removeItem(key) {
   localStorage.removeItem(`${PREFIX}${key}`)
 }
 
-/**
- * Remove todas as chaves do FitProgress.
- */
 export function clearAll() {
   Object.keys(localStorage)
     .filter((k) => k.startsWith(PREFIX))
     .forEach((k) => localStorage.removeItem(k))
+}
+
+/**
+ * Storage Engine customizado para Zustand Persist
+ * Isola fisicamente os dados de cada usuário no LocalStorage.
+ */
+export const userBoundStorage = {
+  getItem: (name) => {
+    const userId = getActiveUserId()
+    const suffix = userId === 'legacy' ? '' : `_${userId}`
+    return localStorage.getItem(`${name}${suffix}`)
+  },
+  setItem: (name, value) => {
+    const userId = getActiveUserId()
+    const suffix = userId === 'legacy' ? '' : `_${userId}`
+    localStorage.setItem(`${name}${suffix}`, value)
+  },
+  removeItem: (name) => {
+    const userId = getActiveUserId()
+    const suffix = userId === 'legacy' ? '' : `_${userId}`
+    localStorage.removeItem(`${name}${suffix}`)
+  }
 }
 
 // Chaves canônicas — evita strings mágicas espalhadas pelo código
@@ -62,3 +74,4 @@ export const STORAGE_KEYS = Object.freeze({
   BODY_METRICS: 'bodyMetrics',
   SYNC_QUEUE: 'syncQueue',
 })
+

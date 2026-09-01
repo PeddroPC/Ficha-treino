@@ -1,6 +1,6 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import { STORAGE_KEYS } from '../lib/localStorage.js'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import { STORAGE_KEYS, userBoundStorage } from '../lib/localStorage.js'
 import { generateId } from '../utils/idGenerator.js'
 
 /**
@@ -111,6 +111,7 @@ const useSyncQueueStore = create(
     }),
     {
       name: `fitprogress:${STORAGE_KEYS.SYNC_QUEUE || 'syncQueue'}`,
+      storage: createJSONStorage(() => userBoundStorage),
     }
   )
 )

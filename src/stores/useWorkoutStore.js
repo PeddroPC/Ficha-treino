@@ -3,8 +3,8 @@
 // Fichas de treino e exercícios da ficha (SheetExercises).
 // ============================================================
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import { STORAGE_KEYS } from '../lib/localStorage.js'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import { STORAGE_KEYS, userBoundStorage } from '../lib/localStorage.js'
 import { generateId } from '../utils/idGenerator.js'
 import useSyncQueueStore from './useSyncQueueStore.js'
 
@@ -152,6 +152,7 @@ const useWorkoutStore = create(
     }),
     {
       name: `fitprogress:${STORAGE_KEYS.WORKOUT_SHEETS}`,
+      storage: createJSONStorage(() => userBoundStorage),
     }
   )
 )

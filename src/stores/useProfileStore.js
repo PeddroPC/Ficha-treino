@@ -3,8 +3,8 @@
 // Gerencia o perfil do usuário com persistência no LocalStorage.
 // ============================================================
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import { STORAGE_KEYS } from '../lib/localStorage.js'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import { STORAGE_KEYS, userBoundStorage } from '../lib/localStorage.js'
 
 const useProfileStore = create(
   persist(
@@ -26,6 +26,7 @@ const useProfileStore = create(
     }),
     {
       name: `fitprogress:${STORAGE_KEYS.PROFILE}`,
+      storage: createJSONStorage(() => userBoundStorage),
     }
   )
 )

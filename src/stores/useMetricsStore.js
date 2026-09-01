@@ -4,8 +4,8 @@
 // Cada avaliação = snapshot em data com todas as medidas
 // ============================================================
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import { STORAGE_KEYS } from '../lib/localStorage.js'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import { STORAGE_KEYS, userBoundStorage } from '../lib/localStorage.js'
 import { generateId } from '../utils/idGenerator.js'
 import useSyncQueueStore from './useSyncQueueStore.js'
 
@@ -82,6 +82,7 @@ const useMetricsStore = create(
     }),
     {
       name: `fitprogress:${STORAGE_KEYS.BODY_METRICS}`,
+      storage: createJSONStorage(() => userBoundStorage),
     }
   )
 )

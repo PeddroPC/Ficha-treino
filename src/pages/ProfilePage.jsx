@@ -134,16 +134,19 @@ export default function ProfilePage() {
         <div className="mt-8 pt-6 border-t border-gray-100">
           <h3 className="text-md font-bold text-gray-900 mb-1 flex items-center gap-2">
             <ShieldAlert size={18} className="text-orange-500" />
-            Zona de Perigo
+            Sair da Conta
           </h3>
-          <p className="text-sm text-gray-500 mb-4">Ações que podem apagar seus dados atuais permanentemente.</p>
+          <p className="text-sm text-gray-500 mb-4">Você pode sair e entrar com outra conta com segurança.</p>
           
           <button 
-            onClick={handleToggleDemo}
+            onClick={async () => {
+              const { AuthService } = await import('../backend/auth/AuthService.js')
+              await AuthService.signOut()
+            }}
             className="w-full flex items-center justify-center gap-2 bg-red-50 text-red-600 hover:bg-red-100 font-semibold py-3 px-4 rounded-xl transition-colors"
           >
             <Trash2 size={18} />
-            {isDemoMode ? "Desativar Modo Demo (Zerar App)" : "Ativar Modo Demo (Carregar Mocks)"}
+            Desconectar (Sair)
           </button>
         </div>
       </Card>

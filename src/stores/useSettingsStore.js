@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import { userBoundStorage } from '../lib/localStorage.js'
 
 const useSettingsStore = create(
   persist(
@@ -9,6 +10,7 @@ const useSettingsStore = create(
     }),
     {
       name: 'fitprogress:settings',
+      storage: createJSONStorage(() => userBoundStorage),
     }
   )
 )

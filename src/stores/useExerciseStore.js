@@ -3,8 +3,8 @@
 // Catálogo de exercícios (base + customizados pelo usuário).
 // ============================================================
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import { STORAGE_KEYS } from '../lib/localStorage.js'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import { STORAGE_KEYS, userBoundStorage } from '../lib/localStorage.js'
 import { generateId } from '../utils/idGenerator.js'
 import useSyncQueueStore from './useSyncQueueStore.js'
 
@@ -65,6 +65,7 @@ const useExerciseStore = create(
     }),
     {
       name: `fitprogress:${STORAGE_KEYS.EXERCISE_CATALOG}`,
+      storage: createJSONStorage(() => userBoundStorage),
     }
   )
 )

@@ -4,8 +4,8 @@
 // Contém seletores analíticos usados pelo Dashboard.
 // ============================================================
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import { STORAGE_KEYS } from '../lib/localStorage.js'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import { STORAGE_KEYS, userBoundStorage } from '../lib/localStorage.js'
 import { generateId } from '../utils/idGenerator.js'
 import useSyncQueueStore from './useSyncQueueStore.js'
 
@@ -150,6 +150,7 @@ const useLogStore = create(
     }),
     {
       name: `fitprogress:${STORAGE_KEYS.EXECUTION_LOGS}`,
+      storage: createJSONStorage(() => userBoundStorage),
     }
   )
 )
