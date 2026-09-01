@@ -1,41 +1,33 @@
 import { supabase } from '../supabaseClient.js'
 
 export const WorkoutRepository = {
-  /**
-   * CREATE: Ficha de Treino
-   */
-  async createSheet(sheet) {
-    const { data, error } = await supabase
-      .from('sheets')
-      .insert([sheet])
-      .select()
-      .single()
-
-    if (error) throw error
-    return data
+  async _getUserId() {
+    const { data: authData, error: authError } = await supabase.auth.getUser()
+    const userId = authData?.user?.id
+    if (authError || !userId) {
+      throw new Error('Usuário não autenticado. Não é possível sincronizar.')
+    }
+    return userId
   },
 
   /**
-   * READ: Retorna todas as Fichas de Treino do usuário logado
+   * UPSERT: Ficha de Treino
    */
-  async getSheets() {
+  async upsertSheet(sheet) {
+    const userId = await this._getUserId()
+
+    const dbPayload = {
+      id: sheet.id,
+      user_id: userId,
+      name: sheet.name,
+      is_active: sheet.isActive ?? true,
+      created_at: sheet.createdAt ?? new Date().toISOString(),
+      updated_at: sheet.updatedAt ?? new Date().toISOString(),
+    }
+
     const { data, error } = await supabase
       .from('sheets')
-      .select('*')
-      .order('created_at', { ascending: false })
-
-    if (error) throw error
-    return data
-  },
-
-  /**
-   * UPDATE: Atualiza uma Ficha de Treino
-   */
-  async updateSheet(id, updates) {
-    const { data, error } = await supabase
-      .from('sheets')
-      .update(updates)
-      .eq('id', id)
+      .upsert(dbPayload, { onConflict: 'id' })
       .select()
       .single()
 
@@ -53,17 +45,30 @@ export const WorkoutRepository = {
       .eq('id', id)
 
     if (error) throw error
-    return true
   },
 
   // ============================================================
   // EXERCÍCIOS DA FICHA (sheet_exercises)
   // ============================================================
 
-  async addSheetExercise(sheetExercise) {
+  async upsertSheetExercise(sheetExercise) {
+    const userId = await this._getUserId()
+
+    const dbPayload = {
+      id: sheetExercise.id,
+      user_id: userId,
+      sheet_id: sheetExercise.sheetId,
+      exercise_id: sheetExercise.exerciseId,
+      order: sheetExercise.order,
+      target_sets: sheetExercise.targetSets,
+      target_reps_min: sheetExercise.targetRepsMin,
+      target_reps_max: sheetExercise.targetRepsMax,
+      target_rest_seconds: sheetExercise.targetRestSeconds,
+    }
+
     const { data, error } = await supabase
       .from('sheet_exercises')
-      .insert([sheetExercise])
+      .upsert(dbPayload, { onConflict: 'id' })
       .select()
       .single()
 
@@ -71,24 +76,12 @@ export const WorkoutRepository = {
     return data
   },
 
-  async replaceSheetExercises(sheetId, sheetExercises) {
-    // 1. Remove antigos
-    const { error: delError } = await supabase
+  async deleteSheetExercise(id) {
+    const { error } = await supabase
       .from('sheet_exercises')
       .delete()
-      .eq('sheet_id', sheetId)
+      .eq('id', id)
 
-    if (delError) throw delError
-
-    // 2. Insere novos se houver
-    if (sheetExercises.length === 0) return true
-
-    const { data, error: insError } = await supabase
-      .from('sheet_exercises')
-      .insert(sheetExercises)
-      .select()
-
-    if (insError) throw insError
-    return data
+    if (error) throw error
   }
 }

@@ -7,6 +7,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { STORAGE_KEYS } from '../lib/localStorage.js'
 import { generateId } from '../utils/idGenerator.js'
+import useSyncQueueStore from './useSyncQueueStore.js'
 
 const useLogStore = create(
   persist(
@@ -20,40 +21,57 @@ const useLogStore = create(
       setSets: (sets) => set({ sets }),
 
       addLog: (log) =>
-        set((state) => ({
-          logs: [
-            ...state.logs,
-            {
-              startedAt: new Date().toISOString(),
-              ...log,                               // id do caller tem prioridade
-            },
-          ],
-        })),
+        set((state) => {
+          const newLog = {
+            startedAt: new Date().toISOString(),
+            ...log,
+          }
+          
+          useSyncQueueStore.getState().enqueue('logs', 'upsert', newLog, newLog.id)
+
+          return {
+            logs: [...state.logs, newLog],
+          }
+        }),
 
       finishLog: (logId, { finishedAt, durationMinutes, notes, perceivedEffort }) =>
-        set((state) => ({
-          logs: state.logs.map((l) =>
+        set((state) => {
+          const newLogs = state.logs.map((l) =>
             l.id === logId
               ? { ...l, finishedAt, durationMinutes, notes, perceivedEffort }
               : l
-          ),
-        })),
+          )
+          
+          const updatedLog = newLogs.find(l => l.id === logId)
+          if (updatedLog) {
+            useSyncQueueStore.getState().enqueue('logs', 'upsert', updatedLog, logId)
+          }
+
+          return { logs: newLogs }
+        }),
 
       addSet: (exerciseSet) =>
-        set((state) => ({
-          sets: [
-            ...state.sets,
-            {
-              id: generateId('es'),
-              ...exerciseSet,                       // id do caller sobrescreve se fornecido
-            },
-          ],
-        })),
+        set((state) => {
+          const newSet = {
+            id: generateId('es'),
+            ...exerciseSet,
+          }
+          
+          useSyncQueueStore.getState().enqueue('sets', 'upsert', newSet, newSet.id)
+
+          return {
+            sets: [...state.sets, newSet],
+          }
+        }),
 
       removeSet: (id) =>
-        set((state) => ({
-          sets: state.sets.filter((s) => s.id !== id),
-        })),
+        set((state) => {
+          useSyncQueueStore.getState().enqueue('sets', 'delete', { id }, id)
+          
+          return {
+            sets: state.sets.filter((s) => s.id !== id),
+          }
+        }),
 
       // ── Selectors analíticos (usados no Dashboard) ──────────
 

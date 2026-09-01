@@ -1,5 +1,8 @@
 import useSyncQueueStore from '../../stores/useSyncQueueStore.js'
 import { ExerciseRepository } from '../repositories/ExerciseRepository.js'
+import { WorkoutRepository } from '../repositories/WorkoutRepository.js'
+import { LogRepository } from '../repositories/LogRepository.js'
+import { MetricsRepository } from '../repositories/MetricsRepository.js'
 
 /**
  * SyncQueueManager
@@ -78,21 +81,27 @@ class SyncQueueManager {
 
   async _processTask(task) {
     if (task.table === 'exercises') {
-      if (task.action === 'upsert') {
-        await ExerciseRepository.upsert(task.payload)
-      } else if (task.action === 'delete') {
-        await ExerciseRepository.delete(task.entityId)
-      }
+      if (task.action === 'upsert') await ExerciseRepository.upsert(task.payload)
+      else if (task.action === 'delete') await ExerciseRepository.delete(task.entityId)
+    } else if (task.table === 'sheets') {
+      if (task.action === 'upsert') await WorkoutRepository.upsertSheet(task.payload)
+      else if (task.action === 'delete') await WorkoutRepository.deleteSheet(task.entityId)
+    } else if (task.table === 'sheet_exercises') {
+      if (task.action === 'upsert') await WorkoutRepository.upsertSheetExercise(task.payload)
+      else if (task.action === 'delete') await WorkoutRepository.deleteSheetExercise(task.entityId)
+    } else if (task.table === 'logs') {
+      if (task.action === 'upsert') await LogRepository.upsertLog(task.payload)
+      else if (task.action === 'delete') await LogRepository.deleteLog(task.entityId)
+    } else if (task.table === 'sets') {
+      if (task.action === 'upsert') await LogRepository.upsertSet(task.payload)
+      else if (task.action === 'delete') await LogRepository.deleteSet(task.entityId)
+    } else if (task.table === 'metrics') {
+      if (task.action === 'upsert') await MetricsRepository.upsertMeasurement(task.payload)
+      else if (task.action === 'delete') await MetricsRepository.deleteMeasurement(task.entityId)
     } else {
-      // Mock para entidades futuras não implementadas
       await this._simulateNetworkCall(task)
     }
   }
-
-  /**
-   * Simula uma chamada de rede com 20% de chance de falha para testar o retry.
-   * @private
-   */
   async _simulateNetworkCall(task) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {

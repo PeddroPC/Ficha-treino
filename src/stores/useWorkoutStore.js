@@ -6,6 +6,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { STORAGE_KEYS } from '../lib/localStorage.js'
 import { generateId } from '../utils/idGenerator.js'
+import useSyncQueueStore from './useSyncQueueStore.js'
 
 const useWorkoutStore = create(
   persist(
@@ -21,75 +22,123 @@ const useWorkoutStore = create(
         (() => {
           const id = generateId('sheet')
           const now = new Date().toISOString()
+          const newSheet = { ...sheet, id, isActive: true, createdAt: now, updatedAt: now }
+          
+          useSyncQueueStore.getState().enqueue('sheets', 'upsert', newSheet, id)
+
           set((state) => ({
-            sheets: [
-              ...state.sheets,
-              { ...sheet, id, isActive: true, createdAt: now, updatedAt: now },
-            ],
+            sheets: [...state.sheets, newSheet],
           }))
           return id
         })(),
 
       updateSheet: (id, updates) =>
-        set((state) => ({
-          sheets: state.sheets.map((s) =>
+        set((state) => {
+          const newSheets = state.sheets.map((s) =>
             s.id === id ? { ...s, ...updates, updatedAt: new Date().toISOString() } : s
-          ),
-        })),
+          )
+          
+          const updatedSheet = newSheets.find((s) => s.id === id)
+          if (updatedSheet) {
+            useSyncQueueStore.getState().enqueue('sheets', 'upsert', updatedSheet, id)
+          }
+
+          return { sheets: newSheets }
+        }),
 
       removeSheet: (id) =>
-        set((state) => ({
-          sheets: state.sheets.filter((s) => s.id !== id),
-          // Remove os exercícios vinculados também
-          sheetExercises: state.sheetExercises.filter((se) => se.sheetId !== id),
-        })),
+        set((state) => {
+          // Precisamos deletar os exercícios vinculados na fila PRIMEIRO para respeitar as chaves estrangeiras
+          const relatedExercises = state.sheetExercises.filter((se) => se.sheetId === id)
+          for (const se of relatedExercises) {
+            useSyncQueueStore.getState().enqueue('sheet_exercises', 'delete', { id: se.id }, se.id)
+          }
+          
+          // E depois deletar a ficha
+          useSyncQueueStore.getState().enqueue('sheets', 'delete', { id }, id)
+
+          return {
+            sheets: state.sheets.filter((s) => s.id !== id),
+            sheetExercises: state.sheetExercises.filter((se) => se.sheetId !== id),
+          }
+        }),
 
       // ── SheetExercise Actions ────────────────────────────────
       setSheetExercises: (sheetExercises) => set({ sheetExercises }),
 
       replaceSheetExercises: (sheetId, exercises) =>
-        set((state) => ({
-          sheetExercises: [
-            ...state.sheetExercises.filter((se) => se.sheetId !== sheetId),
-            ...exercises.map((exercise, index) => ({
-              ...exercise,
-              id: exercise.id ?? generateId('se'),
-              sheetId,
-              order: index + 1,
-            })),
-          ],
-        })),
+        set((state) => {
+          const oldExercises = state.sheetExercises.filter((se) => se.sheetId === sheetId)
+          
+          // Deleta os antigos na fila
+          for (const se of oldExercises) {
+            useSyncQueueStore.getState().enqueue('sheet_exercises', 'delete', { id: se.id }, se.id)
+          }
+
+          // Gera os novos
+          const newExercises = exercises.map((exercise, index) => ({
+            ...exercise,
+            id: exercise.id ?? generateId('se'),
+            sheetId,
+            order: index + 1,
+          }))
+
+          // Insere os novos na fila
+          for (const se of newExercises) {
+            useSyncQueueStore.getState().enqueue('sheet_exercises', 'upsert', se, se.id)
+          }
+
+          return {
+            sheetExercises: [
+              ...state.sheetExercises.filter((se) => se.sheetId !== sheetId),
+              ...newExercises,
+            ],
+          }
+        }),
 
       addSheetExercise: (sheetExercise) =>
         set((state) => {
           const currentMax = state.sheetExercises
             .filter((se) => se.sheetId === sheetExercise.sheetId)
             .reduce((max, se) => Math.max(max, se.order), 0)
+            
+          const newSe = {
+            ...sheetExercise,
+            id: generateId('se'),
+            order: currentMax + 1,
+          }
+
+          useSyncQueueStore.getState().enqueue('sheet_exercises', 'upsert', newSe, newSe.id)
+
           return {
-            sheetExercises: [
-              ...state.sheetExercises,
-              {
-                ...sheetExercise,
-                id: generateId('se'),
-                order: currentMax + 1,
-              },
-            ],
+            sheetExercises: [...state.sheetExercises, newSe],
           }
         }),
 
       removeSheetExercise: (id) =>
-        set((state) => ({
-          sheetExercises: state.sheetExercises.filter((se) => se.id !== id),
-        })),
+        set((state) => {
+          useSyncQueueStore.getState().enqueue('sheet_exercises', 'delete', { id }, id)
+          return {
+            sheetExercises: state.sheetExercises.filter((se) => se.id !== id),
+          }
+        }),
 
       reorderSheetExercises: (sheetId, orderedIds) =>
-        set((state) => ({
-          sheetExercises: state.sheetExercises.map((se) => {
+        set((state) => {
+          const newSheetExercises = state.sheetExercises.map((se) => {
             if (se.sheetId !== sheetId) return se
             const newOrder = orderedIds.indexOf(se.id) + 1
             return newOrder > 0 ? { ...se, order: newOrder } : se
-          }),
-        })),
+          })
+
+          // Encontra os que foram alterados dessa ficha para sincronizar a nova ordem
+          const affected = newSheetExercises.filter(se => se.sheetId === sheetId)
+          for (const se of affected) {
+            useSyncQueueStore.getState().enqueue('sheet_exercises', 'upsert', se, se.id)
+          }
+
+          return { sheetExercises: newSheetExercises }
+        }),
 
       // ── Selectors ───────────────────────────────────────────
       getSheetById: (id) => get().sheets.find((s) => s.id === id) ?? null,

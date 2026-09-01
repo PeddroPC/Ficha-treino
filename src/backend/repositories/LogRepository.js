@@ -1,41 +1,35 @@
 import { supabase } from '../supabaseClient.js'
 
 export const LogRepository = {
-  /**
-   * CREATE: Inicia um novo Log de Treino
-   */
-  async createLog(log) {
-    const { data, error } = await supabase
-      .from('logs')
-      .insert([log])
-      .select()
-      .single()
-
-    if (error) throw error
-    return data
+  async _getUserId() {
+    const { data: authData, error: authError } = await supabase.auth.getUser()
+    const userId = authData?.user?.id
+    if (authError || !userId) {
+      throw new Error('Usuário não autenticado. Não é possível sincronizar.')
+    }
+    return userId
   },
 
   /**
-   * READ: Retorna os logs do usuário logado
+   * UPSERT: Log de Treino
    */
-  async getLogs() {
+  async upsertLog(log) {
+    const userId = await this._getUserId()
+
+    const dbPayload = {
+      id: log.id,
+      user_id: userId,
+      sheet_id: log.sheetId,
+      started_at: log.startedAt,
+      finished_at: log.finishedAt,
+      duration_minutes: log.durationMinutes,
+      notes: log.notes,
+      perceived_effort: log.perceivedEffort,
+    }
+
     const { data, error } = await supabase
       .from('logs')
-      .select('*')
-      .order('started_at', { ascending: false })
-
-    if (error) throw error
-    return data
-  },
-
-  /**
-   * UPDATE: Finaliza ou edita um Log
-   */
-  async updateLog(id, updates) {
-    const { data, error } = await supabase
-      .from('logs')
-      .update(updates)
-      .eq('id', id)
+      .upsert(dbPayload, { onConflict: 'id' })
       .select()
       .single()
 
@@ -53,17 +47,32 @@ export const LogRepository = {
       .eq('id', id)
 
     if (error) throw error
-    return true
   },
 
   // ============================================================
   // SÉRIES (sets)
   // ============================================================
 
-  async addSet(exerciseSet) {
+  async upsertSet(exerciseSet) {
+    const userId = await this._getUserId()
+
+    const dbPayload = {
+      id: exerciseSet.id,
+      user_id: userId,
+      log_id: exerciseSet.logId,
+      exercise_id: exerciseSet.exerciseId,
+      set_number: exerciseSet.setNumber,
+      reps: exerciseSet.reps,
+      weight_kg: exerciseSet.weightKg,
+      rest_seconds: exerciseSet.restSeconds,
+      is_drop_set: exerciseSet.isDropSet ?? false,
+      is_pr: exerciseSet.isPR ?? false,
+      notes: exerciseSet.notes,
+    }
+
     const { data, error } = await supabase
       .from('sets')
-      .insert([exerciseSet])
+      .upsert(dbPayload, { onConflict: 'id' })
       .select()
       .single()
 
@@ -78,6 +87,5 @@ export const LogRepository = {
       .eq('id', id)
 
     if (error) throw error
-    return true
   }
 }

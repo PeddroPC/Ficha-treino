@@ -16,7 +16,7 @@ test('SyncQueueManager Unit Tests', async (t) => {
 
   await t.test('deve processar uma tarefa com sucesso e removê-la da fila', async () => {
     const store = useSyncQueueStore.getState()
-    store.enqueue('sheets', 'upsert', { name: 'Treino Teste' })
+    store.enqueue('test', 'upsert', { dummy: true })
     
     // Assegura que está pending
     assert.equal(useSyncQueueStore.getState().queue.length, 1)
@@ -29,7 +29,8 @@ test('SyncQueueManager Unit Tests', async (t) => {
 
   await t.test('deve simular falha, incrementar retry e manter na fila', async () => {
     const store = useSyncQueueStore.getState()
-    store.enqueue('sheets', 'upsert', { _simulateError: true, name: 'Treino Teste' })
+    // Payload com _simulateError forçará a promise a dar reject dentro de _simulateNetworkCall
+    store.enqueue('test', 'upsert', { _simulateError: true, name: 'Treino Teste' })
     
     await syncManager.processQueue()
     
