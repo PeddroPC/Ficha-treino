@@ -13,7 +13,16 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('⚠️ Credenciais do Supabase não encontradas no .env.local. O cliente não funcionará corretamente.')
 }
 
-export const supabase = createClient(
-  supabaseUrl || 'https://mock.supabase.co', 
-  supabaseAnonKey || 'mock-key'
-)
+// Singleton Pattern: evita recriação do cliente no HMR do Vite (causador do warning "Multiple GoTrueClient")
+const createSupabaseClient = () => {
+  return createClient(
+    supabaseUrl || 'https://mock.supabase.co', 
+    supabaseAnonKey || 'mock-key'
+  )
+}
+
+export const supabase = globalThis.__supabaseClient ?? createSupabaseClient()
+
+if (import.meta.env?.DEV) {
+  globalThis.__supabaseClient = supabase
+}

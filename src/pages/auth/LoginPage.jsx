@@ -20,7 +20,15 @@ export default function LoginPage() {
       // Redirecionamento é feito pelo ProtectedRoute e state authStore, mas garantimos:
       navigate('/', { replace: true })
     } catch (err) {
-      setError('Email ou senha incorretos.')
+      if (err.message?.includes('Email not confirmed')) {
+        setError('Confirme seu e-mail (clique no link enviado) antes de entrar. Se você é o dev, desative a confirmação no painel do Supabase.')
+      } else if (err.status === 422 || err.message?.toLowerCase().includes('email logins are disabled')) {
+        setError('O provedor de e-mail foi desativado no painel do Supabase! Reative-o em Providers -> Email.')
+      } else if (err.status === 429 || err.message?.toLowerCase().includes('rate limit')) {
+        setError('Muitas tentativas. Por favor, aguarde alguns minutos antes de tentar novamente.')
+      } else {
+        setError('Email ou senha incorretos.')
+      }
     } finally {
       setIsLoading(false)
     }

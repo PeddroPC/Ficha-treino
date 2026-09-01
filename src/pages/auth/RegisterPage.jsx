@@ -41,12 +41,14 @@ export default function RegisterPage() {
 
       navigate('/', { replace: true })
     } catch (err) {
-      if (err.message.includes('Password should be at least')) {
+      if (err.status === 429 || err.message?.toLowerCase().includes('rate limit')) {
+        setError('Muitas tentativas. Por favor, aguarde alguns minutos antes de tentar novamente.')
+      } else if (err.message?.includes('Password should be at least')) {
         setError('A senha deve ter pelo menos 6 caracteres.')
-      } else if (err.message.includes('already registered')) {
+      } else if (err.message?.includes('already registered')) {
         setError('Este e-mail já está em uso.')
       } else {
-        setError('Ocorreu um erro ao criar a conta. Tente novamente.')
+        setError(err.message || 'Ocorreu um erro ao criar a conta. Tente novamente.')
       }
     } finally {
       setIsLoading(false)

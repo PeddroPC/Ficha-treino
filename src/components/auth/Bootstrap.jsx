@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { AuthService } from '../../backend/auth/AuthService.js'
 import useAuthStore from '../../stores/useAuthStore.js'
 import { syncManager } from '../../backend/sync/SyncQueueManager.js'
+import { SyncDownstream } from '../../backend/sync/SyncDownstream.js'
 
 export function Bootstrap({ children }) {
   const { isInitialized, isAuthenticated } = useAuthStore()
@@ -14,15 +15,20 @@ export function Bootstrap({ children }) {
     }
   }, [])
 
-  // Hook de rede e processamento da fila
+  // Hook de rede e sincronização (downstream e upstream)
   useEffect(() => {
     if (!isAuthenticated) return
+
+    // 1. Baixa os dados existentes do Supabase para o Zustand local
+    SyncDownstream.restoreFromCloud().catch(err => {
+      console.error('Erro ao sincronizar dados do Supabase:', err)
+    })
 
     const handleOnline = () => {
       syncManager.processQueue()
     }
 
-    // Processa a fila no login e toda vez que voltar a ficar online
+    // 2. Processa a fila de envio no login e toda vez que voltar a ficar online
     syncManager.processQueue()
     window.addEventListener('online', handleOnline)
     

@@ -38,6 +38,14 @@ export const AuthService = {
   signIn: async (email, password) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) throw error
+    
+    // Força a atualização do estado local ANTES de retornar para a UI
+    // Isso evita que o ProtectedRoute expulse o usuário de volta para o login
+    // enquanto o listener global (onAuthStateChange) ainda não disparou.
+    if (data.session) {
+      AuthService._handleSessionUpdate(data.session)
+    }
+    
     return data
   },
 
