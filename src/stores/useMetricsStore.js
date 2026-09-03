@@ -30,6 +30,8 @@ const useMetricsStore = create(
       measurements: [],
 
       // ── Actions ──────────────────────────────────────────────
+      setMeasurements: (measurements) => set({ measurements }),
+
       addMeasurement: (data) => {
         const newMeasurement = {
           ...data,

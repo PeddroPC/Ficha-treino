@@ -2,6 +2,8 @@ import { supabase } from '../supabaseClient.js'
 import useAuthStore from '../../stores/useAuthStore.js'
 import { setActiveUserId } from '../../lib/localStorage.js'
 
+import useProfileStore from '../../stores/useProfileStore.js'
+
 export const AuthService = {
   /**
    * Inicia o listener de sessão do Supabase.
@@ -23,6 +25,17 @@ export const AuthService = {
     if (session?.user) {
       setActiveUserId(session.user.id)
       useAuthStore.getState().setUserAndSession(session.user, session)
+
+      const profileStore = useProfileStore.getState()
+      if (!profileStore.profile) {
+        profileStore.setProfile({
+          name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Atleta',
+          birthDate: null,
+          weightKg: null,
+          heightCm: null,
+          goal: 'hypertrophy'
+        })
+      }
     } else {
       setActiveUserId(null)
       useAuthStore.getState().clearSession()

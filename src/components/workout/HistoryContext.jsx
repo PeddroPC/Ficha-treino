@@ -1,8 +1,14 @@
 import { History } from 'lucide-react'
+import { useMemo } from 'react'
 import useLogStore from '../../stores/useLogStore.js'
 
 export function HistoryContext({ exerciseId, currentLogId = null }) {
-  const lastSessionSets = useLogStore((s) => s.getLastSessionSets(exerciseId, currentLogId))
+  const sets = useLogStore((s) => s.sets)
+  const logs = useLogStore((s) => s.logs)
+
+  const lastSessionSets = useMemo(() => {
+    return useLogStore.getState().getLastSessionSets(exerciseId, currentLogId)
+  }, [sets, logs, exerciseId, currentLogId])
 
   const baseText = 'text-text-muted'
   const highlightText = 'text-text-primary'
