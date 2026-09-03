@@ -53,7 +53,7 @@ export default function ExercisesPage() {
             type="button"
             onClick={() => setIsFormOpen(true)}
             data-testid="btn-new-exercise"
-            className="bg-blue-600 hover:bg-blue-700 text-white text-base font-medium px-4 min-h-[44px] rounded-xl transition-colors flex items-center justify-center"
+            className="bg-brand-action hover:opacity-90 text-white text-base font-bold px-4 min-h-[44px] rounded-xl transition-opacity flex items-center justify-center shadow-sm"
           >
             + Novo Exercício
           </button>
@@ -61,16 +61,16 @@ export default function ExercisesPage() {
       />
 
       {isFormOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="exercise-form-title">
-          <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="exercise-form-title">
+          <div className="w-full max-w-xl rounded-2xl bg-brand-surface border border-brand-elevated p-6 shadow-xl">
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
-                <h2 id="exercise-form-title" className="text-lg font-semibold text-gray-900">
+                <h2 id="exercise-form-title" className="text-lg font-bold text-text-primary">
                   {editingExercise ? 'Editar exercício' : 'Novo exercício'}
                 </h2>
-                <p className="mt-1 text-sm text-gray-500">Preencha os dados do exercício.</p>
+                <p className="mt-1 text-sm text-text-muted">Preencha os dados do exercício.</p>
               </div>
-              <button type="button" onClick={closeForm} className="w-11 h-11 flex items-center justify-center text-3xl leading-none text-gray-400 hover:text-gray-700" aria-label="Fechar formulário">&times;</button>
+              <button type="button" onClick={closeForm} className="w-11 h-11 flex items-center justify-center text-3xl leading-none text-text-muted hover:text-text-primary" aria-label="Fechar formulário">&times;</button>
             </div>
             <FormExercise exercise={editingExercise} onSubmit={handleSubmit} onCancel={closeForm} />
           </div>
@@ -88,22 +88,22 @@ export default function ExercisesPage() {
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {exercises.map((ex) => (
-          <Card key={ex.id} className="hover:shadow-md transition-shadow">
+          <div key={ex.id} className="bg-brand-surface border border-brand-elevated rounded-xl p-4 shadow-sm hover:border-brand-action/50 transition-colors">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                <Dumbbell size={18} className="text-purple-600" />
+              <div className="w-10 h-10 bg-brand-elevated rounded-xl flex items-center justify-center flex-shrink-0">
+                <Dumbbell size={18} className="text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-gray-900 text-sm truncate">{ex.name}</h3>
+                <h3 className="font-bold text-text-primary text-sm truncate">{ex.name}</h3>
                 <div className="flex gap-2 mt-1.5 flex-wrap">
-                  <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">
+                  <span className="border border-brand-elevated text-text-secondary text-xs font-medium px-2 py-0.5 rounded-md">
                     {MuscleGroupLabel[ex.muscleGroup] ?? ex.muscleGroup}
                   </span>
-                  <span className="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded-full">
+                  <span className="border border-brand-elevated text-text-secondary text-xs font-medium px-2 py-0.5 rounded-md">
                     {EquipmentLabel[ex.equipment] ?? ex.equipment}
                   </span>
                   {ex.isCustom && (
-                    <span className="bg-orange-50 text-orange-600 text-xs px-2 py-0.5 rounded-full">
+                    <span className="border border-amber-500/30 bg-amber-500/10 text-amber-400 text-xs font-medium px-2 py-0.5 rounded-md">
                       Personalizado
                     </span>
                   )}
@@ -116,7 +116,7 @@ export default function ExercisesPage() {
                   onClick={() => { setEditingExercise(ex); setIsFormOpen(true) }}
                   data-testid={`btn-edit-exercise-${ex.id}`}
                   aria-label={`Editar exercício ${ex.name}`}
-                  className="rounded-lg px-3 min-h-[44px] min-w-[44px] flex items-center justify-center text-sm font-medium text-blue-600 transition hover:bg-blue-50"
+                  className="rounded-lg px-3 min-h-[40px] min-w-[40px] flex items-center justify-center text-sm font-bold text-brand-action transition hover:bg-brand-elevated"
                 >
                   Editar
                 </button>
@@ -125,13 +125,13 @@ export default function ExercisesPage() {
                   onClick={() => setDeletingExercise(ex)}
                   data-testid={`btn-delete-exercise-${ex.id}`}
                   aria-label={`Excluir exercício ${ex.name}`}
-                  className="rounded-lg px-3 min-h-[44px] min-w-[44px] flex items-center justify-center text-sm font-medium text-red-500 transition hover:bg-red-50"
+                  className="rounded-lg px-3 min-h-[40px] min-w-[40px] flex items-center justify-center text-sm font-bold text-red-500 transition hover:bg-brand-elevated"
                 >
                   Excluir
                 </button>
               </div>
             </div>
-          </Card>
+          </div>
         ))}
       </div>
     </div>

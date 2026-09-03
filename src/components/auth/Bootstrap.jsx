@@ -15,11 +15,12 @@ export function Bootstrap({ children }) {
     }
   }, [])
 
-  // Hook de rede e sincronização (downstream e upstream)
+  // Sincronização em nuvem (Downstream e Upstream)
+  // Ativada apenas quando existe um usuário autenticado.
   useEffect(() => {
     if (!isAuthenticated) return
 
-    // 1. Baixa os dados existentes do Supabase para o Zustand local
+    // 1. Baixa os dados existentes do Supabase para o Zustand local (com trava de segurança)
     SyncDownstream.restoreFromCloud().catch(err => {
       console.error('Erro ao sincronizar dados do Supabase:', err)
     })

@@ -49,53 +49,53 @@ export function FichaDetail({ sheetId }) {
     : []
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 h-full flex flex-col">
+    <div className="flex flex-col">
       {/* Cabeçalho */}
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-xs font-bold text-gray-500 uppercase tracking-widest truncate">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xs font-bold text-text-muted uppercase tracking-widest truncate">
           {sheet?.name ?? 'Selecione uma Ficha'}
         </h2>
         {sheet && (
-          <span className="text-xs bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 rounded-md font-medium shrink-0">
-            Ficha ↓
+          <span className="text-xs bg-brand-surface text-brand-action border border-brand-elevated px-2 py-0.5 rounded-md font-medium shrink-0">
+            Detalhes
           </span>
         )}
       </div>
 
       {!sheet ? (
-        <div className="flex-1 flex items-center justify-center text-gray-300 text-sm">
+        <div className="flex-1 flex items-center justify-center text-text-muted text-sm py-8">
           ← Selecione uma ficha
         </div>
       ) : rows.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center text-gray-300 text-sm">
+        <div className="flex-1 flex items-center justify-center text-text-muted text-sm py-8">
           Nenhum exercício cadastrado
         </div>
       ) : (
-        <div className="overflow-y-auto flex-1 flex flex-col gap-3 pr-1">
+        <div className="flex flex-col gap-4">
           {rows.map((row) => (
             <div
               key={row.id}
-              className="bg-gray-50 border border-gray-100 rounded-xl p-4 flex flex-col gap-2"
+              className="bg-brand-surface border border-brand-elevated rounded-xl p-4 flex flex-col gap-3 shadow-sm"
             >
               <div className="flex justify-between items-start gap-2">
-                <h3 className="text-base font-bold text-gray-800 leading-tight">{row.name}</h3>
-                <span className="bg-blue-100 text-blue-700 text-sm font-bold px-2 py-1 rounded-lg shrink-0">
+                <h3 className="text-base font-bold text-text-primary leading-tight">{row.name}</h3>
+                <span className="bg-brand-structural text-white text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded-lg shrink-0 shadow-sm">
                   {row.weight}
                 </span>
               </div>
               
               <div className="flex flex-wrap gap-2 text-sm">
-                <div className="bg-white border border-gray-200 rounded-lg px-3 py-1.5 flex-1 flex flex-col items-center justify-center">
-                  <span className="text-gray-400 text-xs font-semibold uppercase">Reps</span>
-                  <span className="text-gray-700 font-bold">{row.reps}</span>
+                <div className="bg-brand-base rounded-lg px-3 py-2 flex-1 flex flex-col items-center justify-center">
+                  <span className="text-text-muted text-[10px] font-semibold uppercase">Reps</span>
+                  <span className="text-brand-structural font-bold">{row.reps}</span>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg px-3 py-1.5 flex-1 flex flex-col items-center justify-center">
-                  <span className="text-gray-400 text-xs font-semibold uppercase">Sets</span>
-                  <span className="text-gray-700 font-bold">{row.sets}</span>
+                <div className="bg-brand-base rounded-lg px-3 py-2 flex-1 flex flex-col items-center justify-center">
+                  <span className="text-text-muted text-[10px] font-semibold uppercase">Sets</span>
+                  <span className="text-brand-structural font-bold">{row.sets}</span>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg px-3 py-1.5 flex-1 flex flex-col items-center justify-center">
-                  <span className="text-gray-400 text-xs font-semibold uppercase">Descanso</span>
-                  <span className="text-gray-700 font-bold">{row.rest}</span>
+                <div className="bg-brand-base rounded-lg px-3 py-2 flex-1 flex flex-col items-center justify-center">
+                  <span className="text-text-muted text-[10px] font-semibold uppercase">Descanso</span>
+                  <span className="text-brand-structural font-bold">{row.rest}</span>
                 </div>
               </div>
             </div>

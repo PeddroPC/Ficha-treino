@@ -8,7 +8,7 @@
 export function Card({ className = '', children }) {
   return (
     <div
-      className={`bg-white rounded-2xl shadow-sm border border-gray-100 p-5 ${className}`}
+      className={`bg-brand-surface rounded-xl shadow-sm border border-brand-elevated p-5 ${className}`}
     >
       {children}
     </div>
@@ -31,7 +31,7 @@ export function CardHeader({ className = '', children }) {
  */
 export function CardTitle({ className = '', children }) {
   return (
-    <h3 className={`text-sm font-semibold text-gray-500 uppercase tracking-wider ${className}`}>
+    <h3 className={`text-sm font-bold text-text-muted uppercase tracking-wider ${className}`}>
       {children}
     </h3>
   )

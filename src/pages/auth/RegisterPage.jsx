@@ -56,104 +56,104 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-center py-12 px-6 lg:px-8 bg-gray-50">
+    <div className="min-h-screen flex flex-col justify-center py-12 px-6 lg:px-8 bg-brand-base">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center text-emerald-500">
-          <Dumbbell size={48} />
+        <div className="flex justify-center mb-6">
+          <div className="w-48 h-16 bg-brand-surface flex items-center justify-center border border-brand-elevated rounded">
+            <span className="text-text-muted text-sm font-medium">LOGO PLACEHOLDER</span>
+          </div>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
+        <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-text-primary">
           Criar sua conta
         </h2>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 shadow-sm border border-gray-100 rounded-2xl sm:px-10">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            {error && (
-              <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm text-center">
-                {error}
-              </div>
-            )}
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Nome</label>
-              <div className="mt-1">
-                <input
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="block w-full appearance-none rounded-xl border border-gray-300 px-4 py-3 placeholder-gray-400 focus:border-emerald-500 focus:outline-none focus:ring-emerald-500 sm:text-sm"
-                />
-              </div>
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          {error && (
+            <div className="bg-brand-highlight text-text-primary p-3 rounded-lg text-sm text-center">
+              {error}
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Email</label>
-              <div className="mt-1">
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full appearance-none rounded-xl border border-gray-300 px-4 py-3 placeholder-gray-400 focus:border-emerald-500 focus:outline-none focus:ring-emerald-500 sm:text-sm"
-                />
-              </div>
+          )}
+          
+          <div>
+            <label className="block text-sm font-medium text-text-secondary">Nome</label>
+            <div className="mt-1">
+              <input
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="block w-full appearance-none rounded-xl border border-brand-elevated bg-brand-surface px-4 py-3 text-text-primary placeholder-text-muted focus:border-brand-action focus:outline-none focus:ring-1 focus:ring-brand-action sm:text-sm"
+              />
             </div>
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Senha</label>
-              <div className="mt-1">
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full appearance-none rounded-xl border border-gray-300 px-4 py-3 placeholder-gray-400 focus:border-emerald-500 focus:outline-none focus:ring-emerald-500 sm:text-sm"
-                />
-              </div>
+          <div>
+            <label className="block text-sm font-medium text-text-secondary">Email</label>
+            <div className="mt-1">
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="block w-full appearance-none rounded-xl border border-brand-elevated bg-brand-surface px-4 py-3 text-text-primary placeholder-text-muted focus:border-brand-action focus:outline-none focus:ring-1 focus:ring-brand-action sm:text-sm"
+              />
             </div>
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Confirmar Senha</label>
-              <div className="mt-1">
-                <input
-                  type="password"
-                  required
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="block w-full appearance-none rounded-xl border border-gray-300 px-4 py-3 placeholder-gray-400 focus:border-emerald-500 focus:outline-none focus:ring-emerald-500 sm:text-sm"
-                />
-              </div>
+          <div>
+            <label className="block text-sm font-medium text-text-secondary">Senha</label>
+            <div className="mt-1">
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="block w-full appearance-none rounded-xl border border-brand-elevated bg-brand-surface px-4 py-3 text-text-primary placeholder-text-muted focus:border-brand-action focus:outline-none focus:ring-1 focus:ring-brand-action sm:text-sm"
+              />
             </div>
+          </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="flex w-full justify-center rounded-xl border border-transparent bg-emerald-500 py-3 px-4 text-sm font-medium text-white shadow-sm hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50"
-            >
-              {isLoading ? 'Criando...' : 'Criar conta'}
-            </button>
-          </form>
+          <div>
+            <label className="block text-sm font-medium text-text-secondary">Confirmar Senha</label>
+            <div className="mt-1">
+              <input
+                type="password"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="block w-full appearance-none rounded-xl border border-brand-elevated bg-brand-surface px-4 py-3 text-text-primary placeholder-text-muted focus:border-brand-action focus:outline-none focus:ring-1 focus:ring-brand-action sm:text-sm"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="flex w-full justify-center rounded-xl border border-transparent bg-brand-action py-3 px-4 text-sm font-bold text-white shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-brand-action focus:ring-offset-2 focus:ring-offset-brand-base disabled:opacity-50"
+          >
+            {isLoading ? 'Criando...' : 'Criar conta'}
+          </button>
+        </form>
+
+        <div className="mt-6">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-brand-elevated" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="bg-brand-base px-2 text-text-muted">Já possui conta?</span>
+            </div>
+          </div>
 
           <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="bg-white px-2 text-gray-500">Já possui conta?</span>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <Link
-                to="/login"
-                className="flex w-full justify-center rounded-xl border border-gray-300 bg-white py-3 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-              >
-                Fazer login
-              </Link>
-            </div>
+            <Link
+              to="/login"
+              className="flex w-full justify-center rounded-xl border border-brand-elevated bg-brand-surface py-3 px-4 text-sm font-medium text-text-primary shadow-sm hover:bg-brand-highlight focus:outline-none focus:ring-2 focus:ring-brand-action focus:ring-offset-2 focus:ring-offset-brand-base"
+            >
+              Fazer login
+            </Link>
           </div>
         </div>
       </div>

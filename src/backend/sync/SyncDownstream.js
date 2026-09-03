@@ -23,7 +23,7 @@ export const SyncDownstream = {
         { data: sets },
         { data: metrics }
       ] = await Promise.all([
-        supabase.from('exercises').select('*').eq('user_id', user.id),
+        supabase.from('exercises').select('*').or(`user_id.eq.${user.id},user_id.is.null`),
         supabase.from('sheets').select('*'),
         supabase.from('sheet_exercises').select('*'),
         supabase.from('logs').select('*'),
@@ -99,26 +99,32 @@ export const SyncDownstream = {
         createdAt: e.created_at
       })
 
-      // 3. Atualizar as stores do Zustand localmente
-      const workoutStore = useWorkoutStore.getState()
-      workoutStore.setSheets((sheets || []).map(mapSheet))
-      workoutStore.setSheetExercises((sheetExercises || []).map(mapSheetExercise))
-
-      const logStore = useLogStore.getState()
-      logStore.setLogs((logs || []).map(mapLog))
-      logStore.setSets((sets || []).map(mapSet))
-
-      const metricsStore = useMetricsStore.getState()
-      metricsStore.setMeasurements((metrics || []).map(mapMetric))
-
+      const mappedExercises = (exercises || []).map(mapExercise)
+      const customExercises = mappedExercises.filter(e => e.isCustom)
+      
+      // Sempre atualizar o catálogo de exercícios, pois ele contém os exercícios do sistema (isCustom = false)
       const exerciseStore = useExerciseStore.getState()
-      const customExercises = (exercises || []).map(mapExercise)
-      // Como o Zustand original mistura exercícios padrão com custom, não substituímos tudo, apenas injetamos os custom.
-      // (Na estrutura original, addCustomExercise insere na array)
-      if (customExercises.length > 0) {
-        // Por simplicidade na migração, substituimos apenas os customizados
-        const baseExercises = exerciseStore.exercises.filter(e => !e.isCustom)
-        exerciseStore.setExercises([...baseExercises, ...customExercises])
+      if (mappedExercises.length > 0) {
+        exerciseStore.setExercises(mappedExercises)
+      }
+
+      // 3. Critério para verificar se a nuvem possui dados válidos (dados do USUÁRIO):
+      const hasCloudData = (sheets?.length > 0) || (logs?.length > 0) || (metrics?.length > 0) || (customExercises.length > 0)
+
+      if (hasCloudData) {
+        // Atualizar as stores do Zustand localmente
+        const workoutStore = useWorkoutStore.getState()
+        workoutStore.setSheets((sheets || []).map(mapSheet))
+        workoutStore.setSheetExercises((sheetExercises || []).map(mapSheetExercise))
+
+        const logStore = useLogStore.getState()
+        logStore.setLogs((logs || []).map(mapLog))
+        logStore.setSets((sets || []).map(mapSet))
+
+        const metricsStore = useMetricsStore.getState()
+        metricsStore.setMeasurements((metrics || []).map(mapMetric))
+      } else {
+        console.log('[SyncDownstream] O banco de dados online está vazio para os dados deste usuário. Preservando os dados locais do usuário.')
       }
 
     } catch (error) {

@@ -103,25 +103,25 @@ function TrendCard({ field, latest, previous }) {
   }
 
   const statusConfig = {
-    good:    { icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
-    bad:     { icon: AlertCircle, color: 'text-red-500',     bg: 'bg-red-50',     border: 'border-red-200'     },
-    neutral: { icon: Info,        color: 'text-gray-400',    bg: 'bg-gray-50',    border: 'border-gray-200'    },
+    good:    { icon: CheckCircle, color: 'text-emerald-500', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
+    bad:     { icon: AlertCircle, color: 'text-red-500',     bg: 'bg-red-500/10',     border: 'border-red-500/20'     },
+    neutral: { icon: Info,        color: 'text-text-muted',  bg: 'bg-brand-base',     border: 'border-brand-elevated' },
   }
   const cfg = statusConfig[status]
   const Icon = cfg.icon
   const TrendIcon = !hasProgress ? MinusIcon : diff > 0 ? TrendingUp : diff < 0 ? TrendingDown : MinusIcon
   const trendColor = !hasProgress
-    ? 'text-gray-400'
+    ? 'text-text-muted'
     : field.higherIsBetter === null
-    ? 'text-gray-500'
-    : status === 'good' ? 'text-emerald-600' : 'text-red-500'
+    ? 'text-text-secondary'
+    : status === 'good' ? 'text-emerald-500' : 'text-red-500'
 
   return (
     <div className={`rounded-xl border ${cfg.border} ${cfg.bg} p-3 flex items-center gap-3`}>
       <Icon size={18} className={`shrink-0 ${cfg.color}`} />
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-semibold text-gray-700 truncate">{field.label}</p>
-        <p className="text-base font-extrabold text-gray-900">
+        <p className="text-xs font-semibold text-text-secondary truncate">{field.label}</p>
+        <p className="text-base font-extrabold text-text-primary">
           {latestVal}{field.unit}
         </p>
       </div>
@@ -133,7 +133,7 @@ function TrendCard({ field, latest, previous }) {
           </p>
         )}
         {!hasProgress && (
-          <p className="text-xs text-gray-300 mt-0.5">1ª med.</p>
+          <p className="text-xs text-text-muted mt-0.5">1ª med.</p>
         )}
       </div>
     </div>
@@ -143,23 +143,23 @@ function TrendCard({ field, latest, previous }) {
 // ── Seção de Calculadora de TMB ─────────────────────────────
 function TmbSection({ tmb, activityLevel, setActivityLevel, actFactor }) {
   return (
-    <section className="bg-white rounded-2xl border border-gray-200 p-5">
+    <section className="bg-brand-surface rounded-2xl border border-brand-elevated p-5 shadow-sm">
       <div className="flex items-center gap-2 mb-1">
         <Calculator size={18} className="text-blue-500" />
-        <h2 className="text-sm font-bold text-gray-700">Calculadora de Gasto Calórico</h2>
+        <h2 className="text-sm font-bold text-text-primary">Calculadora de Gasto Calórico</h2>
       </div>
-      <p className="text-xs text-gray-400 mb-4">
+      <p className="text-xs text-text-muted mb-4">
         Baseado no seu peso, altura e data de nascimento do perfil + fator de atividade.
       </p>
 
       {!tmb ? (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm text-amber-700">
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 text-sm text-amber-600">
           ⚠️ Complete seu perfil com <strong>peso</strong>, <strong>altura</strong>, <strong>data de nascimento</strong> e <strong>gênero</strong> para ver os cálculos.
         </div>
       ) : (
         <>
           <div className="mb-4">
-            <label htmlFor="activity-level" className="text-xs font-semibold text-gray-600 block mb-1.5">
+            <label htmlFor="activity-level" className="text-xs font-semibold text-text-secondary block mb-1.5">
               Nível de atividade física
             </label>
             <div className="relative">
@@ -167,13 +167,13 @@ function TmbSection({ tmb, activityLevel, setActivityLevel, actFactor }) {
                 id="activity-level"
                 value={activityLevel}
                 onChange={(e) => setActivityLevel(e.target.value)}
-                className="w-full appearance-none border border-gray-200 rounded-xl px-3 py-2.5 pr-8 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:bg-white transition-all"
+                className="w-full appearance-none border border-brand-elevated rounded-xl px-3 py-2.5 pr-8 text-sm bg-brand-base text-text-primary focus:outline-none focus:border-brand-action transition-all"
               >
                 {ACTIVITY_LEVELS.map((a) => (
                   <option key={a.key} value={a.key}>{a.label} (×{a.factor})</option>
                 ))}
               </select>
-              <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
             </div>
           </div>
 
@@ -185,24 +185,24 @@ function TmbSection({ tmb, activityLevel, setActivityLevel, actFactor }) {
             ].map((formula) => {
               const tdee = Math.round(formula.tmbVal * actFactor)
               return (
-                <div key={formula.shortName} className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-3.5">
-                  <p className="text-xs font-bold text-blue-700 whitespace-pre-line leading-tight mb-1">{formula.name}</p>
-                  <p className="text-xs text-gray-400 mb-2">{formula.desc}</p>
+                <div key={formula.shortName} className="bg-brand-action/5 border border-brand-action/20 rounded-xl p-3.5">
+                  <p className="text-xs font-bold text-brand-action whitespace-pre-line leading-tight mb-1">{formula.name}</p>
+                  <p className="text-xs text-text-muted mb-2">{formula.desc}</p>
                   <div className="space-y-1">
                     <div className="flex justify-between items-baseline">
-                      <span className="text-xs text-gray-500">TMB (repouso)</span>
-                      <span className="text-sm font-bold text-gray-800">{Math.round(formula.tmbVal)} kcal</span>
+                      <span className="text-xs text-text-secondary">TMB (repouso)</span>
+                      <span className="text-sm font-bold text-text-primary">{Math.round(formula.tmbVal)} kcal</span>
                     </div>
-                    <div className="flex justify-between items-baseline border-t border-blue-100 pt-1">
-                      <span className="text-xs text-blue-600 font-medium">TDEE (ativo)</span>
-                      <span className="text-base font-extrabold text-blue-700">{tdee} kcal</span>
+                    <div className="flex justify-between items-baseline border-t border-brand-action/20 pt-1">
+                      <span className="text-xs text-brand-action font-medium">TDEE (ativo)</span>
+                      <span className="text-base font-extrabold text-brand-action">{tdee} kcal</span>
                     </div>
                   </div>
                 </div>
               )
             })}
           </div>
-          <p className="text-xs text-gray-400 mt-3 text-center">
+          <p className="text-xs text-text-muted mt-3 text-center">
             💡 TDEE = Total Daily Energy Expenditure. Coma próximo disso para manter o peso, acima para ganhar massa.
           </p>
         </>
@@ -316,10 +316,10 @@ export default function BodyMetricsPage() {
       {measurements.length === 0 ? (
         /* ── Estado vazio ── */
         <div className="space-y-5">
-          <div className="text-center py-14 bg-white rounded-2xl border border-gray-200">
-            <Ruler size={48} className="text-gray-200 mx-auto mb-4" />
-            <h2 className="text-lg font-bold text-gray-700 mb-2">Nenhuma avaliação ainda</h2>
-            <p className="text-sm text-gray-400 max-w-sm mx-auto mb-6">
+          <div className="text-center py-14 bg-brand-surface rounded-2xl border border-brand-elevated shadow-sm">
+            <Ruler size={48} className="text-text-muted mx-auto mb-4" />
+            <h2 className="text-lg font-bold text-text-primary mb-2">Nenhuma avaliação ainda</h2>
+            <p className="text-sm text-text-secondary max-w-sm mx-auto mb-6">
               Registre sua primeira avaliação para começar a acompanhar seu progresso corporal ao longo do tempo.
             </p>
             <button
@@ -337,12 +337,12 @@ export default function BodyMetricsPage() {
         <div className="space-y-5">
 
           {/* ── 1. Painel de Tendência ────────────────────── */}
-          <section className="bg-white rounded-2xl border border-gray-200 p-5">
+          <section className="bg-brand-surface rounded-2xl border border-brand-elevated p-5 shadow-sm">
             <div className="flex items-center gap-2 mb-4">
-              <TrendingUp size={18} className="text-emerald-600" />
-              <h2 className="text-sm font-bold text-gray-700">Estou no caminho certo?</h2>
+              <TrendingUp size={18} className="text-emerald-500" />
+              <h2 className="text-sm font-bold text-text-primary">Estou no caminho certo?</h2>
               {latest && (
-                <span className="ml-auto text-xs text-gray-400">
+                <span className="ml-auto text-xs text-text-muted">
                   Última avaliação: {fmtDateFull(latest.date)}
                 </span>
               )}
@@ -358,7 +358,7 @@ export default function BodyMetricsPage() {
               ))}
             </div>
             {latest && Object.values(TRACKED_FIELDS).every((f) => latest[f.key] == null) && (
-              <p className="text-sm text-gray-400 text-center py-4">
+              <p className="text-sm text-text-muted text-center py-4">
                 Nenhuma medida registrada na última avaliação.
               </p>
             )}
@@ -366,13 +366,13 @@ export default function BodyMetricsPage() {
 
           {/* ── 2. Gráfico de Evolução ────────────────────── */}
           {chartData.length >= 2 && (
-            <section className="bg-white rounded-2xl border border-gray-200 p-5">
+            <section className="bg-brand-surface rounded-2xl border border-brand-elevated p-5 shadow-sm">
               <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
                 <h2 className="text-sm font-bold text-gray-700">Evolução ao Longo do Tempo</h2>
                 <select
                   value={chartField}
                   onChange={(e) => setChartField(e.target.value)}
-                  className="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                  className="text-xs border border-brand-elevated rounded-lg px-2.5 py-1.5 bg-brand-base text-text-primary focus:outline-none focus:border-brand-action"
                   aria-label="Selecionar métrica para gráfico"
                 >
                   {TRACKED_FIELDS.map((f) => (
@@ -420,8 +420,8 @@ export default function BodyMetricsPage() {
           <TmbSection tmb={tmb} activityLevel={activityLevel} setActivityLevel={setActivityLevel} actFactor={actFactor} />
 
           {/* ── 4. Histórico de avaliações ────────────────── */}
-          <section className="bg-white rounded-2xl border border-gray-200 p-5">
-            <h2 className="text-sm font-bold text-gray-700 mb-4">
+          <section className="bg-brand-surface rounded-2xl border border-brand-elevated p-5 shadow-sm">
+            <h2 className="text-sm font-bold text-text-primary mb-4">
               Histórico de Avaliações ({sorted.length})
             </h2>
             <div className="space-y-3">
@@ -430,17 +430,17 @@ export default function BodyMetricsPage() {
                 return (
                   <div
                     key={m.id}
-                    className="flex items-start gap-3 p-3 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50 transition-colors group"
+                    className="flex items-start gap-3 p-3 rounded-xl border border-brand-elevated hover:bg-brand-elevated transition-colors group"
                   >
                     {/* Data */}
-                    <div className="w-12 h-12 bg-emerald-100 rounded-xl flex flex-col items-center justify-center shrink-0">
-                      <span className="text-xs font-bold text-emerald-700 leading-none">
+                    <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex flex-col items-center justify-center shrink-0">
+                      <span className="text-xs font-bold text-emerald-500 leading-none">
                         {m.date.slice(8, 10)}
                       </span>
-                      <span className="text-xs text-emerald-600 leading-none">
+                      <span className="text-xs text-emerald-500/80 leading-none">
                         /{m.date.slice(5, 7)}
                       </span>
-                      <span className="text-[10px] text-emerald-500 mt-0.5">
+                      <span className="text-[10px] text-emerald-500/60 mt-0.5">
                         {m.date.slice(0, 4)}
                       </span>
                     </div>
@@ -451,17 +451,17 @@ export default function BodyMetricsPage() {
                         {filled.map((f) => (
                           <span
                             key={f.key}
-                            className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full"
+                            className="bg-brand-elevated text-text-secondary text-xs px-2 py-0.5 rounded-full font-bold"
                           >
-                            {f.label}: <strong>{m[f.key]}{f.unit}</strong>
+                            {f.label}: <strong className="text-text-primary">{m[f.key]}{f.unit}</strong>
                           </span>
                         ))}
                       </div>
                       {m.notes && (
-                        <p className="text-xs text-gray-400 mt-1.5 italic truncate">"{m.notes}"</p>
+                        <p className="text-xs text-text-secondary mt-1.5 italic truncate">"{m.notes}"</p>
                       )}
                       {filled.length === 0 && (
-                        <p className="text-xs text-gray-300">Nenhuma medida registrada</p>
+                        <p className="text-xs text-text-muted">Nenhuma medida registrada</p>
                       )}
                     </div>
 

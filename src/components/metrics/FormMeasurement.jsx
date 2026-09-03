@@ -51,36 +51,36 @@ export function FormMeasurement({ measurement = null, onSubmit, onClose }) {
   }
 
   const inputCls =
-    'w-full min-h-[44px] rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-base text-gray-900 outline-none ' +
-    'focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-gray-300'
+    'w-full min-h-[44px] rounded-xl border border-brand-elevated bg-brand-base px-3 py-3 text-base text-text-primary outline-none ' +
+    'focus:border-brand-action focus:bg-brand-surface focus:ring-2 focus:ring-brand-action/20 transition-all placeholder:text-text-muted'
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="form-measurement-title"
     >
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col">
+      <div className="relative bg-brand-surface border border-brand-elevated rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col">
 
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
+        <div className="flex items-center justify-between p-5 border-b border-brand-elevated">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 bg-emerald-100 rounded-xl flex items-center justify-center">
-              <Ruler size={18} className="text-emerald-600" />
+            <div className="w-9 h-9 bg-emerald-500/10 rounded-xl flex items-center justify-center border border-emerald-500/20">
+              <Ruler size={18} className="text-emerald-500" />
             </div>
             <div>
-              <h2 id="form-measurement-title" className="text-base font-bold text-gray-900 leading-none">
+              <h2 id="form-measurement-title" className="text-base font-bold text-text-primary leading-none">
                 {isEditing ? 'Editar Avaliação' : 'Nova Avaliação'}
               </h2>
-              <p className="text-xs text-gray-400 mt-0.5">Preencha apenas os campos que mediu</p>
+              <p className="text-xs text-text-muted mt-0.5 font-medium">Preencha apenas os campos que mediu</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Fechar"
-            className="w-11 h-11 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+            className="w-11 h-11 rounded-lg flex items-center justify-center text-text-muted hover:text-text-primary hover:bg-brand-elevated transition-colors"
           >
             <X size={20} />
           </button>
@@ -92,7 +92,7 @@ export function FormMeasurement({ measurement = null, onSubmit, onClose }) {
 
             {/* Data */}
             <div>
-              <label htmlFor="meas-date" className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-1.5">
+              <label htmlFor="meas-date" className="flex items-center gap-1.5 text-xs font-semibold text-text-secondary mb-1.5">
                 <CalendarDays size={12} />
                 Data da avaliação
               </label>
@@ -108,15 +108,15 @@ export function FormMeasurement({ measurement = null, onSubmit, onClose }) {
 
             {/* Grid de medidas */}
             <div>
-              <p className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 mb-2">
+              <p className="flex items-center gap-1.5 text-xs font-semibold text-text-secondary mb-2">
                 <Scale size={12} />
                 Medidas (deixe em branco o que não mediu)
               </p>
               <div className="grid grid-cols-2 gap-2.5">
                 {FIELDS.map(({ key, label, unit, step, placeholder }) => (
                   <div key={key}>
-                    <label htmlFor={`meas-${key}`} className="block text-xs font-medium text-gray-500 mb-1">
-                      {label} <span className="text-gray-300">({unit})</span>
+                    <label htmlFor={`meas-${key}`} className="block text-xs font-medium text-text-muted mb-1">
+                      {label} <span className="text-text-secondary">({unit})</span>
                     </label>
                     <input
                       id={`meas-${key}`}
@@ -135,7 +135,7 @@ export function FormMeasurement({ measurement = null, onSubmit, onClose }) {
 
             {/* Notas */}
             <div>
-              <label htmlFor="meas-notes" className="block text-xs font-semibold text-gray-600 mb-1.5">
+              <label htmlFor="meas-notes" className="block text-xs font-semibold text-text-secondary mb-1.5">
                 Notas (opcional)
               </label>
               <textarea
@@ -154,14 +154,14 @@ export function FormMeasurement({ measurement = null, onSubmit, onClose }) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 min-h-[44px] border border-gray-200 text-gray-600 font-semibold py-3 rounded-xl hover:bg-gray-50 transition-colors text-base"
+              className="flex-1 min-h-[44px] border border-brand-elevated bg-brand-base text-text-secondary font-bold py-3 rounded-xl hover:bg-brand-elevated transition-colors text-base"
             >
               Cancelar
             </button>
             <button
               type="submit"
               data-testid="btn-save-measurement"
-              className="flex-1 min-h-[44px] bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl transition-colors text-base"
+              className="flex-1 min-h-[44px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition-colors text-base shadow-sm shadow-emerald-900/20"
             >
               {isEditing ? 'Salvar Alterações' : 'Salvar Avaliação'}
             </button>

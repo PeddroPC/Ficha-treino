@@ -1,17 +1,16 @@
 import { History } from 'lucide-react'
 import useLogStore from '../../stores/useLogStore.js'
 
-export function HistoryContext({ exerciseId, currentLogId = null, dark = false }) {
+export function HistoryContext({ exerciseId, currentLogId = null }) {
   const lastSessionSets = useLogStore((s) => s.getLastSessionSets(exerciseId, currentLogId))
 
-  const baseText = dark ? 'text-gray-400' : 'text-gray-500'
-  const highlightText = dark ? 'text-gray-200' : 'text-gray-800'
-  const bg = dark ? 'bg-gray-900/50' : 'bg-blue-50/50'
-  const border = dark ? 'border-gray-800' : 'border-blue-100'
+  const baseText = 'text-text-muted'
+  const highlightText = 'text-text-primary'
+  const bg = 'bg-brand-surface border-brand-elevated'
 
   if (!lastSessionSets) {
     return (
-      <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border ${bg} ${border} mb-3`}>
+      <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border ${bg} mb-3`}>
         <History size={14} className={baseText} />
         <span className={`text-xs font-medium ${baseText}`}>Primeira vez neste exercício</span>
       </div>
@@ -19,7 +18,7 @@ export function HistoryContext({ exerciseId, currentLogId = null, dark = false }
   }
 
   return (
-    <div className={`flex flex-col gap-1.5 px-3 py-2.5 rounded-xl border ${bg} ${border} mb-3`}>
+    <div className={`flex flex-col gap-1.5 px-3 py-2.5 rounded-xl border ${bg} mb-3`}>
       <div className="flex items-center gap-2">
         <History size={14} className={baseText} />
         <span className={`text-[10px] font-bold uppercase tracking-wider ${baseText}`}>

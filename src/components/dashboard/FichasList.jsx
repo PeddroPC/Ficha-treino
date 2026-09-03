@@ -34,17 +34,17 @@ export function FichasList({ selectedSheetId, onSelect }) {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 h-full">
+    <div>
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+        <h2 className="text-[10px] font-bold text-text-primary uppercase tracking-widest">
           Minhas Fichas
         </h2>
-        <span className="text-xs bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded-full">
-          {active.length} Active
+        <span className="text-[10px] bg-brand-elevated text-text-secondary font-bold px-2 py-0.5 rounded-full">
+          {active.length} Ativas
         </span>
       </div>
 
-      <div className="space-y-2">
+      <div className="flex overflow-x-auto no-scrollbar gap-2 pb-2">
         {active.map((sheet, idx) => {
           const exCount = countExercises(sheet.id)
           const last    = lastSession(sheet.id)
@@ -56,36 +56,22 @@ export function FichasList({ selectedSheetId, onSelect }) {
               type="button"
               onClick={() => onSelect(sheet.id)}
               className={[
-                'w-full text-left rounded-lg border px-3 py-2.5 transition-all',
+                'flex-shrink-0 text-left rounded-xl border px-4 py-2 transition-all min-w-[120px]',
                 isSelected
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50',
+                  ? 'border-brand-structural bg-brand-structural text-white shadow-sm'
+                  : 'border-brand-elevated bg-brand-surface text-text-primary hover:border-brand-action hover:bg-brand-surface',
               ].join(' ')}
             >
-              <div className="flex items-start gap-2.5">
-                {/* Número */}
-                <span
-                  className={[
-                    'w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5',
-                    isSelected
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-500',
-                  ].join(' ')}
-                >
-                  {idx + 1}
-                </span>
-
-                <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-semibold truncate ${isSelected ? 'text-blue-800' : 'text-gray-800'}`}>
-                    {sheet.name}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    <span className="font-medium text-gray-500">{exCount} ex</span>
-                    {last && (
-                      <span className="ml-2">Last: {last}</span>
-                    )}
-                  </p>
-                </div>
+              <div className="flex flex-col">
+                <p className={`text-sm font-bold truncate ${isSelected ? 'text-white' : 'text-brand-structural'}`}>
+                  {sheet.name}
+                </p>
+                <p className={`text-[10px] mt-0.5 ${isSelected ? 'text-white/80' : 'text-text-secondary'}`}>
+                  <span className="font-medium">{exCount} ex</span>
+                  {last && (
+                    <span className="ml-1 opacity-75">({last})</span>
+                  )}
+                </p>
               </div>
             </button>
           )

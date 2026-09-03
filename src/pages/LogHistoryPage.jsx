@@ -23,10 +23,10 @@ export default function LogHistoryPage() {
       />
 
       {sorted.length === 0 ? (
-        <Card className="py-16 text-center">
-          <History size={40} className="text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-400 font-medium">Nenhum treino registrado</p>
-        </Card>
+        <div className="bg-brand-surface border border-brand-elevated rounded-xl py-16 text-center shadow-sm">
+          <History size={40} className="text-text-muted mx-auto mb-3" />
+          <p className="text-text-secondary font-medium">Nenhum treino registrado</p>
+        </div>
       ) : (
         <div className="space-y-3">
           {sorted.map((log) => {
@@ -35,25 +35,25 @@ export default function LogHistoryPage() {
               weekday: 'long', day: '2-digit', month: 'long', year: 'numeric',
             })
             return (
-              <Card key={log.id}>
+              <div key={log.id} className="bg-brand-surface border border-brand-elevated rounded-xl p-4 shadow-sm">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-semibold text-gray-900 text-sm">{sheet?.name ?? 'Treino'}</p>
-                    <p className="text-xs text-gray-400 capitalize mt-0.5">{date}</p>
-                    {log.notes && <p className="text-xs text-gray-500 mt-1 italic">"{log.notes}"</p>}
+                    <p className="font-bold text-text-primary text-sm">{sheet?.name ?? 'Treino'}</p>
+                    <p className="text-xs text-text-secondary capitalize mt-0.5">{date}</p>
+                    {log.notes && <p className="text-xs text-text-muted mt-1 italic">"{log.notes}"</p>}
                   </div>
                   <div className="flex gap-4 text-right text-sm">
                     <div>
-                      <p className="text-xs text-gray-400">Duração</p>
-                      <p className="font-medium text-gray-700">{log.durationMinutes ?? '–'} min</p>
+                      <p className="text-xs text-text-muted font-medium">Duração</p>
+                      <p className="font-bold text-text-primary">{log.durationMinutes ?? '–'} <span className="text-xs font-normal">min</span></p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-400">RPE</p>
-                      <p className="font-bold text-gray-900">{log.perceivedEffort ?? '–'}/10</p>
+                      <p className="text-xs text-text-muted font-medium">RPE</p>
+                      <p className="font-bold text-brand-action">{log.perceivedEffort ?? '–'}<span className="text-xs font-normal text-text-muted">/10</span></p>
                     </div>
                   </div>
                 </div>
-              </Card>
+              </div>
             )
           })}
         </div>

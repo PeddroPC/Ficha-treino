@@ -64,26 +64,26 @@ export function BodyMetrics() {
         />
       )}
 
-      <div className="bg-white rounded-xl border border-gray-200 p-4">
+      <div>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+          <h2 className="text-[10px] font-bold text-text-primary uppercase tracking-widest">
             Métricas Corporais
           </h2>
-          <Scale size={14} className="text-gray-400" />
+          <Scale size={14} className="text-brand-structural" />
         </div>
 
         {/* Cards de métricas */}
         <div className="grid grid-cols-3 gap-2 mb-4">
-          {metrics.map(({ label, value, color, bg, prev, curr, higherIsBetter }) => {
+          {metrics.map(({ label, value, prev, curr, higherIsBetter }) => {
             const diff = prev != null && curr != null ? curr - prev : null
             const isGood = diff === null ? null : higherIsBetter ? diff >= 0 : diff <= 0
             return (
-              <div key={label} className={`${bg} rounded-lg p-2.5 text-center relative`}>
-                <p className={`text-lg font-extrabold ${color} leading-none`}>{value}</p>
-                <p className="text-xs text-gray-500 mt-1">{label}</p>
+              <div key={label} className="bg-brand-surface border border-brand-elevated rounded-xl p-3 text-center relative shadow-sm">
+                <p className="text-lg font-extrabold text-brand-action leading-none">{value}</p>
+                <p className="text-[10px] font-bold text-text-secondary mt-1 uppercase tracking-widest">{label}</p>
                 {diff !== null && diff !== 0 && (
-                  <div className={`absolute top-1.5 right-1.5 ${isGood ? 'text-emerald-500' : 'text-red-400'}`}>
-                    {diff > 0 ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
+                  <div className={`absolute top-1.5 right-1.5 ${isGood ? 'text-emerald-500' : 'text-amber-500'}`}>
+                    {diff > 0 ? <TrendingUp size={12} strokeWidth={2.5} /> : <TrendingDown size={12} strokeWidth={2.5} />}
                   </div>
                 )}
               </div>
@@ -97,17 +97,17 @@ export function BodyMetrics() {
             type="button"
             data-testid="btn-dashboard-new-measurement"
             onClick={() => setIsFormOpen(true)}
-            className="flex-1 flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2 px-3 rounded-lg transition-colors"
+            className="flex-1 flex items-center justify-center gap-1.5 bg-brand-action hover:opacity-90 text-white text-xs font-bold py-3 px-3 rounded-xl transition-opacity shadow-sm shadow-brand-action/20"
           >
-            <PlusCircle size={13} />
+            <PlusCircle size={14} strokeWidth={2.5} />
             Nova Avaliação
           </button>
           <button
             type="button"
             onClick={() => navigate('/metricas')}
-            className="text-xs text-blue-500 hover:text-blue-700 font-medium px-2 py-2 transition-colors"
+            className="text-xs text-brand-structural hover:text-brand-action font-bold px-4 py-3 transition-colors bg-brand-surface border border-brand-elevated rounded-xl shadow-sm"
           >
-            Ver Detalhes
+            Detalhes
           </button>
         </div>
       </div>

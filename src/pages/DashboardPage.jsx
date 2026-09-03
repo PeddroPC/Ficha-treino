@@ -1,6 +1,5 @@
 // ============================================================
-// pages/DashboardPage.jsx — Dashboard redesenhado
-// Layout inspirado no FitProgress: 3 colunas + 2 colunas abaixo
+// pages/DashboardPage.jsx — Dashboard mobile-first
 // ============================================================
 import { useState, useMemo } from 'react'
 import useProfileStore from '../stores/useProfileStore.js'
@@ -13,12 +12,13 @@ import { FichaDetail }      from '../components/dashboard/FichaDetail.jsx'
 import { RecentWorkouts }   from '../components/dashboard/RecentWorkouts.jsx'
 import { BodyMetrics }      from '../components/dashboard/BodyMetrics.jsx'
 
+import { FolderOpen, Dumbbell, LineChart } from 'lucide-react'
+
 export default function DashboardPage() {
   const profile = useProfileStore((s) => s.profile)
   const sheets  = useWorkoutStore((s) => s.sheets)
   const logs    = useLogStore((s) => s.logs)
 
-  // Ficha selecionada no painel de detalhes
   const [selectedSheetId, setSelectedSheetId] = useState(
     () => sheets.filter((s) => s.isActive)[1]?.id ?? sheets[0]?.id ?? null
   )
@@ -31,63 +31,57 @@ export default function DashboardPage() {
   }, [])
 
   return (
-    <div className="space-y-5">
-
+    <div className="space-y-6">
       {/* ── Saudação ──────────────────────────────────────── */}
-      <div>
-        <h1 className="text-2xl font-extrabold text-gray-900 leading-tight">
-          {greeting}, {profile?.name ?? 'Atleta'}! 👋
+      <div className="pt-2">
+        <h1 className="text-2xl font-extrabold text-brand-structural leading-tight">
+          {greeting}, {profile?.name ?? 'Atleta'}!
         </h1>
-        <p className="text-sm text-gray-500 mt-0.5">
-          Sua Jornada Começa Aqui.
+        <p className="text-sm text-text-secondary mt-1">
+          Pronto para mais um treino?
         </p>
       </div>
 
       {/* ── Faixa de estatísticas rápidas ─────────────────── */}
-      <div className="grid grid-cols-3 gap-3 sm:grid-cols-3 lg:grid-cols-3">
+      <div className="grid grid-cols-3 gap-3">
         <QuickStat
-          label="Fichas Ativas"
+          label="Fichas"
           value={sheets.filter((s) => s.isActive).length}
-          sub="fichas"
-          color="blue"
+          sub="Ativas"
+          icon={FolderOpen}
         />
         <QuickStat
-          label="Treinos (30d)"
+          label="Sessões"
           value={logs.filter((l) => {
             const d = new Date(l.startedAt)
             const cutoff = new Date()
             cutoff.setDate(cutoff.getDate() - 30)
             return d >= cutoff
           }).length}
-          sub="sessões"
-          color="green"
+          sub="30 dias"
+          icon={Dumbbell}
         />
         <QuickStat
-          label="Total de Logs"
+          label="Registros"
           value={logs.length}
-          sub="registros"
-          color="purple"
+          sub="Totais"
+          icon={LineChart}
         />
       </div>
 
-      {/* ── 3 colunas: Fichas | Gráfico | Detalhes ─────────── */}
-      <div className="flex flex-col xl:grid xl:gap-4 xl:grid-cols-[220px_1fr_240px] gap-4">
-        {/* Col 1 – Minhas Fichas */}
+      {/* ── 1 coluna (Mobile-first) ─────────── */}
+      <div className="flex flex-col gap-6 pt-4">
         <FichasList
           selectedSheetId={selectedSheetId}
           onSelect={setSelectedSheetId}
         />
-
-        {/* Col 2 – Gráfico de Progressão */}
+        
         <ProgressionChart />
-
-        {/* Col 3 – Detalhes da Ficha */}
+        
         <FichaDetail sheetId={selectedSheetId} />
-      </div>
-
-      {/* ── 2 colunas inferiores: Recentes | Métricas ──────── */}
-      <div className="grid gap-4 lg:grid-cols-2">
+        
         <RecentWorkouts />
+        
         <BodyMetrics />
       </div>
     </div>
@@ -95,21 +89,16 @@ export default function DashboardPage() {
 }
 
 // ── Componente auxiliar interno ──────────────────────────────
-function QuickStat({ label, value, sub, color }) {
-  const cls = {
-    blue:   'bg-blue-50   text-blue-700',
-    green:  'bg-green-50  text-green-700',
-    purple: 'bg-purple-50 text-purple-700',
-  }
+function QuickStat({ label, value, sub, icon: Icon }) {
   return (
-    <div className={`${cls[color]} rounded-xl px-4 py-3 flex items-center gap-3`}>
-      <div>
-        <p className="text-2xl font-extrabold leading-none">{value}</p>
-        <p className="text-xs font-medium mt-0.5 opacity-70">{sub}</p>
+    <div className="bg-brand-surface shadow-sm rounded-xl px-3 py-3 flex justify-between items-start border border-brand-elevated">
+      <div className="flex flex-col">
+        <span className="text-[10px] font-bold text-text-primary uppercase tracking-wider">{label}</span>
+        <span className="text-2xl font-extrabold text-brand-action leading-tight">{value}</span>
+        <span className="text-[9px] font-medium text-text-muted uppercase tracking-widest">{sub}</span>
       </div>
-      <p className="text-xs font-semibold opacity-60 ml-auto text-right leading-tight max-w-[80px]">
-        {label}
-      </p>
+      {Icon && <Icon size={20} className="text-brand-action opacity-60" strokeWidth={1.5} />}
     </div>
   )
 }
+

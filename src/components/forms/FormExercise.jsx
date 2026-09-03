@@ -7,7 +7,7 @@ import {
 } from "../../constants/enums.js";
 
 const inputClassName =
-  "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+  "w-full rounded-lg border border-brand-elevated bg-brand-base px-3 py-2 text-sm text-text-primary outline-none transition focus:border-brand-action focus:ring-2 focus:ring-brand-action/20";
 
 const FormExercise = ({ exercise = null, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState(() => ({
@@ -31,7 +31,7 @@ const FormExercise = ({ exercise = null, onSubmit, onCancel }) => {
       <div>
         <label
           htmlFor="exercise-name"
-          className="mb-1.5 block text-sm font-medium text-gray-700"
+          className="mb-1.5 block text-sm font-medium text-text-secondary"
         >
           Nome do exercício
         </label>
@@ -50,7 +50,7 @@ const FormExercise = ({ exercise = null, onSubmit, onCancel }) => {
         <div>
           <label
             htmlFor="exercise-muscle-group"
-            className="mb-1.5 block text-sm font-medium text-gray-700"
+            className="mb-1.5 block text-sm font-medium text-text-secondary"
           >
             Grupo muscular
           </label>
@@ -73,7 +73,7 @@ const FormExercise = ({ exercise = null, onSubmit, onCancel }) => {
         <div>
           <label
             htmlFor="exercise-equipment"
-            className="mb-1.5 block text-sm font-medium text-gray-700"
+            className="mb-1.5 block text-sm font-medium text-text-secondary"
           >
             Equipamento
           </label>
@@ -97,7 +97,7 @@ const FormExercise = ({ exercise = null, onSubmit, onCancel }) => {
       <div>
         <label
           htmlFor="exercise-instructions"
-          className="mb-1.5 block text-sm font-medium text-gray-700"
+          className="mb-1.5 block text-sm font-medium text-text-secondary"
         >
           Instruções
         </label>
@@ -111,19 +111,19 @@ const FormExercise = ({ exercise = null, onSubmit, onCancel }) => {
           rows="4"
         />
       </div>
-      <div className="flex justify-end gap-2 border-t border-gray-100 pt-4">
+      <div className="flex justify-end gap-2 border-t border-brand-elevated pt-4">
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-100"
+            className="rounded-lg px-4 py-2 text-sm font-medium text-text-secondary transition hover:bg-brand-elevated"
           >
             Cancelar
           </button>
         )}
         <button
           type="submit"
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+          className="rounded-lg bg-brand-action px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-highlight"
         >
           {exercise ? "Salvar alterações" : "Adicionar exercício"}
         </button>

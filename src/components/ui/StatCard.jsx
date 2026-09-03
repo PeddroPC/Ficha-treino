@@ -15,16 +15,16 @@
  */
 export function StatCard({ title, value, subtitle, icon, trend, trendLabel, color = 'blue' }) {
   const colorMap = {
-    blue:   { bg: 'bg-blue-50',   text: 'text-blue-600',   icon: 'bg-blue-100' },
-    green:  { bg: 'bg-green-50',  text: 'text-green-600',  icon: 'bg-green-100' },
-    purple: { bg: 'bg-purple-50', text: 'text-purple-600', icon: 'bg-purple-100' },
-    orange: { bg: 'bg-orange-50', text: 'text-orange-600', icon: 'bg-orange-100' },
+    blue:   { bg: 'bg-blue-500/10',   text: 'text-blue-500',   icon: 'bg-blue-500/20' },
+    green:  { bg: 'bg-green-500/10',  text: 'text-green-500',  icon: 'bg-green-500/20' },
+    purple: { bg: 'bg-purple-500/10', text: 'text-purple-500', icon: 'bg-purple-500/20' },
+    orange: { bg: 'bg-orange-500/10', text: 'text-orange-500', icon: 'bg-orange-500/20' },
   }
 
   const trendColors = {
-    up:      'text-green-600',
+    up:      'text-green-500',
     down:    'text-red-500',
-    neutral: 'text-gray-400',
+    neutral: 'text-text-muted',
   }
 
   const trendIcons = {
@@ -36,9 +36,9 @@ export function StatCard({ title, value, subtitle, icon, trend, trendLabel, colo
   const colors = colorMap[color]
 
   return (
-    <div className={`${colors.bg} rounded-2xl p-5 flex flex-col gap-3`}>
+    <div className={`${colors.bg} border border-${color}-500/20 rounded-2xl p-5 flex flex-col gap-3`}>
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+        <span className="text-xs font-bold text-text-muted uppercase tracking-wider">
           {title}
         </span>
         <div className={`${colors.icon} ${colors.text} p-2 rounded-xl`}>
@@ -47,14 +47,14 @@ export function StatCard({ title, value, subtitle, icon, trend, trendLabel, colo
       </div>
 
       <div>
-        <p className={`text-3xl font-bold ${colors.text}`}>{value}</p>
+        <p className={`text-3xl font-extrabold ${colors.text}`}>{value}</p>
         {subtitle && (
-          <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>
+          <p className="text-xs text-text-muted mt-0.5 font-medium">{subtitle}</p>
         )}
       </div>
 
       {trend && trendLabel && (
-        <p className={`text-xs font-medium ${trendColors[trend]}`}>
+        <p className={`text-xs font-bold ${trendColors[trend]}`}>
           <span>{trendIcons[trend]} </span>
           {trendLabel}
         </p>

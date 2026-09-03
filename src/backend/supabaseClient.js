@@ -10,15 +10,15 @@ const supabaseAnonKey = typeof import.meta !== 'undefined' && import.meta.env
   : process?.env?.VITE_SUPABASE_ANON_KEY
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('⚠️ Credenciais do Supabase não encontradas no .env.local. O cliente não funcionará corretamente.')
+  throw new Error(
+    'FALHA CRÍTICA: Variáveis VITE_SUPABASE_URL ou VITE_SUPABASE_ANON_KEY não encontradas. ' +
+    'Por favor, configure o arquivo .env.local com as credenciais do Supabase.'
+  )
 }
 
 // Singleton Pattern: evita recriação do cliente no HMR do Vite (causador do warning "Multiple GoTrueClient")
 const createSupabaseClient = () => {
-  return createClient(
-    supabaseUrl || 'https://mock.supabase.co', 
-    supabaseAnonKey || 'mock-key'
-  )
+  return createClient(supabaseUrl, supabaseAnonKey)
 }
 
 export const supabase = globalThis.__supabaseClient ?? createSupabaseClient()

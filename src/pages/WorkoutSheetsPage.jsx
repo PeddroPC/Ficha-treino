@@ -42,7 +42,7 @@ export default function WorkoutSheetsPage() {
             type="button"
             onClick={() => setIsFormOpen(true)}
             data-testid="btn-new-sheet"
-            className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors"
+            className="bg-brand-action hover:opacity-90 text-white text-sm font-bold px-4 py-2 rounded-xl transition-opacity"
           >
             + Nova Ficha
           </button>
@@ -51,7 +51,7 @@ export default function WorkoutSheetsPage() {
       
       {isFormOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 overflow-y-auto backdrop-blur-sm transition-all"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 overflow-y-auto backdrop-blur-sm transition-all"
           role="dialog"
           aria-modal="true"
         >
@@ -75,39 +75,39 @@ export default function WorkoutSheetsPage() {
       />
 
       {sheets.length === 0 ? (
-        <Card className="py-16 text-center">
-          <ClipboardList size={40} className="text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-400 font-medium">
+        <div className="bg-brand-surface border border-brand-elevated rounded-xl py-16 text-center shadow-sm">
+          <ClipboardList size={40} className="text-text-muted mx-auto mb-3" />
+          <p className="text-text-secondary font-medium">
             Nenhuma ficha criada ainda
           </p>
-          <p className="text-gray-300 text-sm mt-1">
+          <p className="text-text-muted text-sm mt-1">
             Crie sua primeira ficha de treino para começar
           </p>
-        </Card>
+        </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {sheets.map((sheet) => (
-            <Card key={sheet.id}>
+            <div key={sheet.id} className="bg-brand-surface border border-brand-elevated rounded-xl p-4 shadow-sm">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <ClipboardList size={18} className="text-blue-600" />
+                <div className="w-10 h-10 bg-brand-elevated rounded-xl flex items-center justify-center flex-shrink-0">
+                  <ClipboardList size={18} className="text-brand-action" />
                 </div>
                 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <h3 className="font-semibold text-gray-900 text-sm truncate">
+                    <h3 className="font-bold text-text-primary text-sm truncate">
                       {sheet.name}
                     </h3>
                     {sheet.isActive && (
                       <Check 
                         size={16} 
                         strokeWidth={3} 
-                        className="text-green-500 flex-shrink-0" 
+                        className="text-emerald-500 flex-shrink-0" 
                         title="Ficha Ativa" 
                       />
                     )}
                   </div>
-                  <p className="text-xs text-gray-400 mt-0.5 truncate">
+                  <p className="text-xs text-text-muted mt-0.5 truncate">
                     {sheet.description}
                   </p>
                 </div>
@@ -121,7 +121,7 @@ export default function WorkoutSheetsPage() {
                     }}
                     data-testid={`btn-edit-sheet-${sheet.id}`}
                     aria-label={`Editar ficha ${sheet.name}`}
-                    className="rounded-lg px-2 py-1 text-xs font-medium text-blue-600 transition hover:bg-blue-50"
+                    className="rounded-lg px-2 py-1 text-xs font-bold text-brand-action transition hover:bg-brand-elevated"
                   >
                     Editar
                   </button>
@@ -130,13 +130,13 @@ export default function WorkoutSheetsPage() {
                     onClick={() => setDeletingSheet(sheet)}
                     data-testid={`btn-delete-sheet-${sheet.id}`}
                     aria-label={`Excluir ficha ${sheet.name}`}
-                    className="rounded-lg px-2 py-1 text-xs font-medium text-red-500 transition hover:bg-red-50"
+                    className="rounded-lg px-2 py-1 text-xs font-bold text-red-500 transition hover:bg-brand-elevated"
                   >
                     Excluir
                   </button>
                 </div>
               </div>
-            </Card>
+            </div>
           ))}
         </div>
       )}

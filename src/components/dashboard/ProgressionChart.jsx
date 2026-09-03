@@ -73,8 +73,8 @@ export function ProgressionChart() {
   const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length) return null
     return (
-      <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3 text-xs">
-        <p className="font-bold text-gray-700 mb-2">{label}</p>
+      <div className="bg-brand-surface border border-brand-elevated rounded-lg shadow-lg p-3 text-xs">
+        <p className="font-bold text-text-primary mb-2">{label}</p>
         {payload.map((entry) => (
           <p key={entry.name} style={{ color: entry.color }} className="font-medium">
             {entry.name}: <span className="font-bold">{entry.value} kg</span>
@@ -85,55 +85,57 @@ export function ProgressionChart() {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 h-full">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-[10px] font-bold text-text-primary uppercase tracking-widest">
           Progressão de Cargas
         </h2>
-        <span className="text-xs text-gray-400">Últimos 30 Dias</span>
+        <span className="text-[10px] text-text-muted">Últimos 30 Dias</span>
       </div>
 
-      {chartData.length < 2 ? (
-        <div className="flex items-center justify-center h-48 text-gray-300 text-sm">
-          Dados insuficientes para exibir o gráfico
-        </div>
-      ) : (
-        <ResponsiveContainer width="100%" height={220}>
-          <LineChart data={chartData} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis
-              dataKey="date"
-              tick={{ fontSize: 11, fill: '#9ca3af' }}
-              tickLine={false}
-              axisLine={false}
-            />
-            <YAxis
-              tick={{ fontSize: 11, fill: '#9ca3af' }}
-              tickLine={false}
-              axisLine={false}
-              unit=" kg"
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend
-              wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }}
-              iconType="circle"
-              iconSize={8}
-            />
-            {trackedExercises.map(({ ex, color }) => (
-              <Line
-                key={ex.id}
-                type="monotone"
-                dataKey={ex.name}
-                stroke={color}
-                strokeWidth={2.5}
-                dot={{ r: 4, fill: color, strokeWidth: 0 }}
-                activeDot={{ r: 6 }}
-                connectNulls
+      <div className="bg-brand-surface border border-brand-elevated rounded-xl p-4 shadow-sm">
+        {chartData.length < 2 ? (
+          <div className="flex items-center justify-center h-48 text-text-muted text-sm text-center px-4">
+            Sua progressão começa aqui. Registre seu primeiro treino para ver seu crescimento!
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height={220}>
+            <LineChart data={chartData} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+              <XAxis
+                dataKey="date"
+                tick={{ fontSize: 11, fill: '#94a3b8' }}
+                tickLine={false}
+                axisLine={false}
               />
-            ))}
-          </LineChart>
-        </ResponsiveContainer>
-      )}
+              <YAxis
+                tick={{ fontSize: 11, fill: '#94a3b8' }}
+                tickLine={false}
+                axisLine={false}
+                unit=" kg"
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend
+                wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }}
+                iconType="circle"
+                iconSize={8}
+              />
+              {trackedExercises.map(({ ex, color }) => (
+                <Line
+                  key={ex.id}
+                  type="monotone"
+                  dataKey={ex.name}
+                  stroke={color === '#f97316' ? '#D9AD5B' : color === '#3b82f6' ? '#169C96' : color}
+                  strokeWidth={2.5}
+                  dot={{ r: 4, fill: color === '#f97316' ? '#D9AD5B' : color === '#3b82f6' ? '#169C96' : color, strokeWidth: 0 }}
+                  activeDot={{ r: 6 }}
+                  connectNulls
+                />
+              ))}
+            </LineChart>
+          </ResponsiveContainer>
+        )}
+      </div>
     </div>
   )
 }

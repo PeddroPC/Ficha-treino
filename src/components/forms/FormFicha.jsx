@@ -81,8 +81,8 @@ const FormFicha = ({ sheet = null, onSubmit, onCancel }) => {
     if (onSubmit) onSubmit(); 
   };
 
-  const labelClassName = "mb-2 block text-sm font-semibold text-slate-800";
-  const inputClassName = "w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+  const labelClassName = "mb-2 block text-sm font-semibold text-text-primary";
+  const inputClassName = "w-full rounded-lg border border-brand-elevated bg-brand-base px-4 py-3 text-sm text-text-primary outline-none transition-all placeholder:text-text-muted focus:border-brand-action focus:ring-2 focus:ring-brand-action/20";
 
   return (
     <div 
@@ -92,13 +92,13 @@ const FormFicha = ({ sheet = null, onSubmit, onCancel }) => {
         O 'max-w-[95vw]' garante que não quebre em celulares.
         Isso força o Modal pai a esticar o fundo branco.
       */
-      className={`relative mx-auto transition-all duration-300 ease-in-out bg-white p-6 sm:p-10 shadow-2xl rounded-3xl
+      className={`relative mx-auto transition-all duration-300 ease-in-out bg-brand-surface border border-brand-elevated p-6 sm:p-10 shadow-2xl rounded-3xl
         ${hasExercises ? "w-[1050px] max-w-[95vw]" : "w-[500px] max-w-[95vw]"}
       `}
     >
       <button 
         onClick={onCancel}
-        className="absolute right-6 top-6 text-slate-400 hover:text-slate-600 transition-colors"
+        className="absolute right-6 top-6 text-text-muted hover:text-text-primary transition-colors"
         type="button"
         aria-label="Fechar"
       >
@@ -112,10 +112,10 @@ const FormFicha = ({ sheet = null, onSubmit, onCancel }) => {
           {/* LADO ESQUERDO */}
           <div className="w-full md:w-[420px] shrink-0 flex flex-col">
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-slate-900">
+              <h2 className="text-2xl font-bold text-text-primary">
                 {sheet ? "Editar ficha de treino" : "Nova ficha de treino"}
               </h2>
-              <p className="mt-1.5 text-sm text-slate-500">Preencha os dados principais e monte a estrutura do treino.</p>
+              <p className="mt-1.5 text-sm text-text-secondary">Preencha os dados principais e monte a estrutura do treino.</p>
             </div>
 
             <div className="space-y-6">
@@ -150,7 +150,7 @@ const FormFicha = ({ sheet = null, onSubmit, onCancel }) => {
                 />
               </div>
               
-              <hr className="border-slate-100 my-2" />
+              <hr className="border-brand-elevated my-2" />
 
               <div>
                 <label htmlFor="exercise-selector" className={labelClassName}>
@@ -177,28 +177,28 @@ const FormFicha = ({ sheet = null, onSubmit, onCancel }) => {
 
           {/* LADO DIREITO */}
           {hasExercises && (
-            <div className="flex-1 min-w-[320px] flex flex-col rounded-xl border border-slate-100 bg-[#F8FAFC] p-2 h-full mt-8 md:mt-0">
+            <div className="flex-1 min-w-[320px] flex flex-col rounded-xl border border-brand-elevated bg-brand-base p-2 h-full mt-8 md:mt-0">
               <div className="flex items-center gap-2 px-4 py-3 pb-4">
-                <Dumbbell size={18} className="text-slate-500" />
-                <h3 className="text-sm font-semibold text-slate-700">
+                <Dumbbell size={18} className="text-text-muted" />
+                <h3 className="text-sm font-semibold text-text-primary">
                   Exercícios na Ficha ({formData.selectedExercises.length})
                 </h3>
               </div>
               
-              <div className="flex-1 overflow-y-auto px-2 space-y-3 max-h-[55vh] scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent pb-2">
+              <div className="flex-1 overflow-y-auto px-2 space-y-3 max-h-[55vh] scrollbar-thin scrollbar-thumb-brand-elevated scrollbar-track-transparent pb-2">
                 {formData.selectedExercises.map((item, index) => (
                   <div 
                     key={index} 
-                    className="group relative flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:border-blue-300"
+                    className="group relative flex flex-col gap-2 rounded-xl border border-brand-elevated bg-brand-surface p-4 shadow-sm transition-all hover:border-brand-action"
                   >
                     <div className="flex items-start justify-between pr-6">
-                      <span className="text-sm font-bold text-slate-900">
+                      <span className="text-sm font-bold text-text-primary">
                         {index + 1}. {item.name}
                       </span>
                       <button 
                         type="button" 
                         onClick={() => handleRemoveExercise(index)}
-                        className="absolute top-4 right-4 text-slate-400 opacity-0 transition group-hover:opacity-100 hover:!text-red-500"
+                        className="absolute top-4 right-4 text-text-muted opacity-0 transition group-hover:opacity-100 hover:!text-red-500"
                         title="Remover exercício"
                         aria-label="Remover exercício"
                       >
@@ -208,15 +208,15 @@ const FormFicha = ({ sheet = null, onSubmit, onCancel }) => {
 
                     <div className="flex flex-col gap-1.5 mt-1">
                        <div className="flex gap-2">
-                         <span className="bg-slate-100 text-slate-700 text-xs px-2.5 py-1 rounded-md font-medium">
-                           Séries: <strong className="text-slate-900">{item.targetSets}</strong>
+                         <span className="bg-brand-elevated text-text-secondary text-xs px-2.5 py-1 rounded-md font-medium">
+                           Séries: <strong className="text-text-primary">{item.targetSets}</strong>
                          </span>
-                         <span className="bg-slate-100 text-slate-700 text-xs px-2.5 py-1 rounded-md font-medium">
-                           Reps: <strong className="text-slate-900">{item.targetRepsMin}-{item.targetRepsMax}</strong>
+                         <span className="bg-brand-elevated text-text-secondary text-xs px-2.5 py-1 rounded-md font-medium">
+                           Reps: <strong className="text-text-primary">{item.targetRepsMin}-{item.targetRepsMax}</strong>
                          </span>
                        </div>
-                       <span className="text-slate-600 text-xs font-medium px-1">
-                         Descanso: <strong className="text-slate-900">{item.targetRestSeconds}s</strong>
+                       <span className="text-text-secondary text-xs font-medium px-1">
+                         Descanso: <strong className="text-text-primary">{item.targetRestSeconds}s</strong>
                        </span>
                     </div>
                   </div>
@@ -227,17 +227,17 @@ const FormFicha = ({ sheet = null, onSubmit, onCancel }) => {
         </div>
 
         {/* FOOTER */}
-        <div className="mt-10 flex justify-end gap-3 pt-6 border-t border-slate-100">
+        <div className="mt-10 flex justify-end gap-3 pt-6 border-t border-brand-elevated">
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-lg px-6 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition"
+            className="rounded-lg px-6 py-2.5 text-sm font-bold text-text-secondary hover:bg-brand-elevated transition"
           >
             Cancelar
           </button>
           <button
             type="submit"
-            className="rounded-lg bg-blue-600 px-8 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition shadow-sm"
+            className="rounded-lg bg-brand-action px-8 py-2.5 text-sm font-bold text-white hover:bg-brand-highlight transition shadow-sm"
           >
             {sheet ? "Salvar alterações" : "Adicionar ficha"}
           </button>

@@ -60,8 +60,8 @@ const weekKey = (dateObj) => {
 function LineTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-xl p-3 text-xs min-w-[190px]">
-      <p className="font-bold text-gray-700 mb-2 border-b border-gray-100 pb-1">{label}</p>
+    <div className="bg-brand-surface border border-brand-elevated rounded-xl shadow-xl p-3 text-xs min-w-[190px]">
+      <p className="font-bold text-text-primary mb-2 border-b border-brand-elevated pb-1">{label}</p>
       {payload.map((entry) => {
         const isPR   = entry.payload[`${entry.name}_isPR`]
         const volume = entry.payload[`${entry.name}_vol`]
@@ -70,13 +70,13 @@ function LineTooltip({ active, payload, label }) {
             <div className="flex items-center gap-1.5 mb-0.5">
               <div className="w-2 h-2 rounded-full shrink-0" style={{ background: entry.color }} />
               <span className="font-semibold" style={{ color: entry.color }}>{entry.name}</span>
-              {isPR && <span className="text-yellow-500">⭐ PR!</span>}
+              {isPR && <span className="text-amber-500">⭐ PR!</span>}
             </div>
-            <p className="text-gray-900 font-bold ml-3.5 text-sm">
+            <p className="text-text-primary font-bold ml-3.5 text-sm">
               {entry.value} {entry.payload?.unit ?? 'kg'}
             </p>
             {volume > 0 && (
-              <p className="text-gray-400 ml-3.5">Vol: {volume.toLocaleString('pt-BR')} kg</p>
+              <p className="text-text-muted ml-3.5">Vol: {volume.toLocaleString('pt-BR')} kg</p>
             )}
           </div>
         )
@@ -295,25 +295,25 @@ export default function ProgressaoPage() {
         <div className="flex-1 w-full min-w-0 space-y-5">
 
           {/* 1. Gráfico dinâmico */}
-          <div className="bg-white rounded-xl border border-gray-200 p-5" data-testid={chartMode === 'specific' ? 'chart-progression' : 'chart-muscle-group'}>
-            <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+          <div className="bg-brand-surface rounded-xl border border-brand-elevated p-5" data-testid={chartMode === 'specific' ? 'chart-progression' : 'chart-muscle-group'}>
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
               <div>
-                <h2 className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                <h2 className="text-xs font-bold text-text-muted uppercase tracking-widest">
                   {chartTitle}
                 </h2>
                 {chartMode === 'overview' && (
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <p className="text-xs text-text-secondary mt-0.5">
                     Selecione exercícios para ver progressão de cargas
                   </p>
                 )}
               </div>
               {/* Seletor de período */}
-              <div className="flex bg-gray-100 rounded-lg p-0.5 gap-0.5">
+              <div className="flex bg-brand-base border border-brand-elevated rounded-lg p-0.5 gap-0.5">
                 {PERIODS.map((p) => (
                   <button key={p.key} type="button" onClick={() => setPeriod(p.key)}
                     className={[
-                      'px-3 py-1 rounded-md text-xs font-semibold transition-colors',
-                      period === p.key ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700',
+                      'px-3 py-1.5 rounded-md text-xs font-bold transition-colors',
+                      period === p.key ? 'bg-brand-surface text-text-primary shadow-sm' : 'text-text-muted hover:text-text-secondary',
                     ].join(' ')}
                   >
                     {p.label}
@@ -324,25 +324,25 @@ export default function ProgressaoPage() {
 
             {mainData.length < 2 ? (
               <div className="h-56 flex flex-col items-center justify-center gap-2">
-                <TrendingUp size={32} className="text-gray-200" />
-                <p className="text-gray-400 text-sm">Sem dados neste período</p>
-                <p className="text-gray-300 text-xs">Faça um Registro Rápido para alimentar o gráfico</p>
+                <TrendingUp size={32} className="text-brand-elevated" />
+                <p className="text-text-muted text-sm font-medium">Sem dados neste período</p>
+                <p className="text-text-secondary text-xs">Faça um Registro Rápido para alimentar o gráfico</p>
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={248}>
                 <LineChart data={mainData} margin={{ top: 20, right: 8, left: -12, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9ca3af' }} tickLine={false} axisLine={false} />
-                  <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} tickLine={false} axisLine={false}
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-brand-elevated)" />
+                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} tickLine={false} axisLine={false}
                     unit={chartYUnit} width={chartMode === 'specific' ? 48 : 56}
                     tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(1)}k` : v} />
                   <Tooltip content={<LineTooltip />} />
-                  <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '14px' }} iconType="circle" iconSize={8} />
+                  <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '14px', color: 'var(--color-text-primary)' }} iconType="circle" iconSize={8} />
                   {mainLines.map(({ key, label, color }) => (
                     <Line key={key} type="monotone" dataKey={label} stroke={color}
                       strokeWidth={2.5}
                       dot={chartMode === 'specific' ? makeDot(label, color) : { r: 3, fill: color, strokeWidth: 0 }}
-                      activeDot={{ r: 7, stroke: color, strokeWidth: 2, fill: '#fff' }}
+                      activeDot={{ r: 7, stroke: color, strokeWidth: 2, fill: 'var(--color-brand-base)' }}
                       connectNulls />
                   ))}
                 </LineChart>
@@ -352,21 +352,21 @@ export default function ProgressaoPage() {
 
           {/* 2. Volume empilhado (apenas se há dados) */}
           {volumeData.length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-200 p-5">
+            <div className="bg-brand-surface rounded-xl border border-brand-elevated p-5">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                <h2 className="text-xs font-bold text-text-muted uppercase tracking-widest">
                   Volume de Treino e Distribuição
                 </h2>
-                <span className="text-xs text-gray-400">reps × kg / semana</span>
+                <span className="text-xs text-text-secondary">reps × kg / semana</span>
               </div>
               <ResponsiveContainer width="100%" height={180}>
                 <BarChart data={volumeData} margin={{ top: 0, right: 8, left: -12, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis dataKey="week" tick={{ fontSize: 10, fill: '#9ca3af' }} tickLine={false} axisLine={false} />
-                  <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} tickLine={false} axisLine={false} width={48}
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-brand-elevated)" />
+                  <XAxis dataKey="week" tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} tickLine={false} axisLine={false} width={48}
                     tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(1)}k` : v} />
-                  <Tooltip formatter={(v, name) => [`${v.toLocaleString('pt-BR')} kg`, name]} />
-                  <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }} iconType="square" iconSize={8} />
+                  <Tooltip cursor={{fill: 'rgba(0,0,0,0.05)'}} contentStyle={{ backgroundColor: 'var(--color-brand-surface)', borderColor: 'var(--color-brand-elevated)', borderRadius: '0.75rem', color: 'var(--color-text-primary)' }} formatter={(v, name) => [`${v.toLocaleString('pt-BR')} kg`, name]} />
+                  <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '8px', color: 'var(--color-text-primary)' }} iconType="square" iconSize={8} />
                   {volumeExercises.slice(0, 6).map((ex, i) => (
                     <Bar key={ex.id} dataKey={ex.name} stackId="vol"
                       fill={PALETTE[i % PALETTE.length]} fillOpacity={0.85}
@@ -379,46 +379,46 @@ export default function ProgressaoPage() {
 
           {/* 3. Frequência + Marcos */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div className="bg-white rounded-xl border border-gray-200 p-5">
-              <h2 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">
+            <div className="bg-brand-surface rounded-xl border border-brand-elevated p-5">
+              <h2 className="text-xs font-bold text-text-muted uppercase tracking-widest mb-4">
                 Frequência Semana a Semana
               </h2>
               {frequencyData.length < 2 ? (
-                <div className="h-32 flex items-center justify-center text-gray-300 text-xs">
+                <div className="h-32 flex items-center justify-center text-text-muted text-xs">
                   Dados insuficientes
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height={130}>
                   <AreaChart data={frequencyData} margin={{ top: 4, right: 4, left: -28, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                    <XAxis dataKey="week" tick={{ fontSize: 9, fill: '#9ca3af' }} tickLine={false} axisLine={false} />
-                    <YAxis tick={{ fontSize: 9, fill: '#9ca3af' }} tickLine={false} axisLine={false} allowDecimals={false} />
-                    <Tooltip formatter={(v) => [`${v} treino${v !== 1 ? 's' : ''}`, 'Frequência']} />
-                    <Area type="monotone" dataKey="treinos" stroke="#3b82f6" fill="#dbeafe"
-                      strokeWidth={2} dot={{ r: 3, fill: '#3b82f6', strokeWidth: 0 }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--color-brand-elevated)" />
+                    <XAxis dataKey="week" tick={{ fontSize: 9, fill: 'var(--color-text-muted)' }} tickLine={false} axisLine={false} />
+                    <YAxis tick={{ fontSize: 9, fill: 'var(--color-text-muted)' }} tickLine={false} axisLine={false} allowDecimals={false} />
+                    <Tooltip cursor={{stroke: 'var(--color-brand-elevated)', strokeWidth: 1}} contentStyle={{ backgroundColor: 'var(--color-brand-surface)', borderColor: 'var(--color-brand-elevated)', borderRadius: '0.75rem', color: 'var(--color-text-primary)' }} formatter={(v) => [`${v} treino${v !== 1 ? 's' : ''}`, 'Frequência']} />
+                    <Area type="monotone" dataKey="treinos" stroke="var(--color-brand-action)" fill="var(--color-brand-action)" fillOpacity={0.15}
+                      strokeWidth={2} dot={{ r: 3, fill: 'var(--color-brand-action)', strokeWidth: 0 }} />
                   </AreaChart>
                 </ResponsiveContainer>
               )}
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 p-5">
-              <h2 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">
+            <div className="bg-brand-surface rounded-xl border border-brand-elevated p-5">
+              <h2 className="text-xs font-bold text-text-muted uppercase tracking-widest mb-4">
                 Próximos Marcos de Carga
               </h2>
               <div className="space-y-4">
                 {milestones.map(({ label, current, target, pct }) => (
                   <div key={label}>
                     <div className="flex justify-between items-baseline mb-1.5">
-                      <span className="text-xs font-semibold text-gray-700 truncate pr-2">{label}</span>
-                      <span className="text-xs text-gray-400 shrink-0">
-                        {current > 0 ? `${current}kg` : '–'} → <span className="font-semibold text-gray-600">{target}kg</span>
+                      <span className="text-xs font-semibold text-text-primary truncate pr-2">{label}</span>
+                      <span className="text-xs text-text-secondary shrink-0">
+                        {current > 0 ? `${current}kg` : '–'} → <span className="font-bold text-brand-action">{target}kg</span>
                       </span>
                     </div>
-                    <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div className="absolute left-0 top-0 h-full bg-blue-500 rounded-full transition-all duration-500"
+                    <div className="relative h-2 bg-brand-base rounded-full overflow-hidden border border-brand-elevated">
+                      <div className="absolute left-0 top-0 h-full bg-brand-action rounded-full transition-all duration-500"
                         style={{ width: `${pct}%` }} />
                     </div>
-                    <p className="text-right text-xs text-gray-400 mt-0.5">{pct}%</p>
+                    <p className="text-right text-[10px] font-bold text-text-muted mt-1 uppercase">{pct}%</p>
                   </div>
                 ))}
               </div>
@@ -430,37 +430,37 @@ export default function ProgressaoPage() {
         <div className="w-full lg:w-72 shrink-0 space-y-4">
 
           {/* Resumo de Evolução */}
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">
+          <div className="bg-brand-surface rounded-xl border border-brand-elevated p-5">
+            <h3 className="text-xs font-bold text-text-muted uppercase tracking-widest mb-4">
               Resumo de Evolução
             </h3>
             <div className="space-y-4">
               <div>
-                <p className="text-xs text-gray-400 mb-0.5 flex items-center gap-1">
-                  <Flame size={11} className="text-orange-400" />
+                <p className="text-xs font-medium text-text-secondary mb-1 flex items-center gap-1.5">
+                  <Flame size={14} className="text-amber-500" />
                   Carga Total Levantada (Mês)
                 </p>
-                <p className="text-2xl font-extrabold text-gray-900">
+                <p className="text-2xl font-extrabold text-text-primary">
                   {stats.thisVol >= 1000 ? `${(stats.thisVol / 1000).toFixed(1)} t` : `${Math.round(stats.thisVol).toLocaleString('pt-BR')} kg`}
                 </p>
                 {stats.volPct !== null && (
-                  <p className={`text-xs font-semibold mt-0.5 ${stats.volPct >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                  <p className={`text-[10px] font-bold mt-1 uppercase tracking-wider ${stats.volPct >= 0 ? 'text-emerald-600' : 'text-brand-action'}`}>
                     {stats.volPct >= 0 ? '+' : ''}{stats.volPct}% vs mês anterior
                   </p>
                 )}
               </div>
               {stats.latestPR && (
-                <div className="border-t border-gray-100 pt-3">
-                  <p className="text-xs text-gray-400 flex items-center gap-1 mb-0.5">
-                    <Trophy size={11} className="text-yellow-500" />
+                <div className="border-t border-brand-elevated pt-4">
+                  <p className="text-xs font-medium text-text-secondary flex items-center gap-1.5 mb-2">
+                    <Trophy size={14} className="text-amber-500" />
                     Recorde Pessoal Recente
                   </p>
-                  <p className="font-bold text-gray-900 text-sm">
+                  <p className="font-bold text-text-primary text-sm">
                     {allExercises.find((e) => e.id === stats.latestPR.exerciseId)?.name ?? '–'}
                   </p>
-                  <p className="text-lg font-extrabold text-gray-900">
+                  <p className="text-lg font-extrabold text-brand-action mt-0.5">
                     {stats.latestPR.weightKg} kg
-                    <span className="text-xs font-normal text-gray-400 ml-1">× {stats.latestPR.reps} reps</span>
+                    <span className="text-xs font-medium text-text-muted ml-1.5">× {stats.latestPR.reps} reps</span>
                   </p>
                 </div>
               )}
@@ -468,16 +468,16 @@ export default function ProgressaoPage() {
           </div>
 
           {/* ── Seletor de Exercícios com busca + limite ──── */}
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
+          <div className="bg-brand-surface rounded-xl border border-brand-elevated p-5">
             {/* Cabeçalho + contador */}
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xs font-bold text-text-muted uppercase tracking-widest">
                 Selecionar Exercícios
               </h3>
-              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
                 activeIds.size >= MAX_SELECTED
-                  ? 'bg-orange-100 text-orange-600'
-                  : 'bg-blue-50 text-blue-600'
+                  ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
+                  : 'bg-brand-base text-brand-action border border-brand-elevated'
               }`}>
                 {activeIds.size}/{MAX_SELECTED}
               </span>
@@ -492,42 +492,42 @@ export default function ProgressaoPage() {
                   colorMapRef.current = {}
                   usedColorsRef.current = new Set()
                 }}
-                className="w-full text-xs text-gray-400 hover:text-red-500 flex items-center justify-center gap-1 mb-2 py-1 rounded-lg hover:bg-red-50 transition-colors"
+                className="w-full text-xs font-bold text-text-muted hover:text-brand-action flex items-center justify-center gap-1.5 mb-3 py-1.5 rounded-lg hover:bg-brand-base transition-colors"
               >
-                <XIcon size={11} />
+                <XIcon size={12} />
                 Limpar seleção (ver overview)
               </button>
             )}
 
             {/* Campo de busca — fixo no topo */}
-            <div className="relative mb-2">
-              <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            <div className="relative mb-3">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
               <input
                 type="text"
                 placeholder="Buscar exercício..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-7 pr-3 py-2 text-xs border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="w-full pl-9 pr-8 py-2.5 text-sm font-medium border border-brand-elevated rounded-xl focus:outline-none focus:border-brand-action bg-brand-base text-text-primary placeholder-text-muted transition-colors"
               />
               {search && (
                 <button type="button" onClick={() => setSearch('')}
                   aria-label="Limpar busca"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                  <XIcon size={12} />
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors">
+                  <XIcon size={14} />
                 </button>
               )}
             </div>
 
             {/* Lista com scroll */}
-            <div className="max-h-64 overflow-y-auto space-y-0.5 pr-1">
+            <div className="max-h-64 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
               {filteredExercises.length === 0 && (
-                <p className="text-xs text-gray-400 text-center py-4">Nenhum exercício encontrado</p>
+                <p className="text-xs font-medium text-text-muted text-center py-4">Nenhum exercício encontrado</p>
               )}
               {filteredExercises.map((ex) => {
                 const isActive   = activeIds.has(ex.id)
                 const isDisabled = !isActive && activeIds.size >= MAX_SELECTED
                 const colorIdx   = colorMapRef.current[ex.id]
-                const color      = isActive && colorIdx !== undefined ? PALETTE[colorIdx] : '#e5e7eb'
+                const color      = isActive && colorIdx !== undefined ? PALETTE[colorIdx] : 'var(--color-brand-elevated)'
 
                 return (
                   <button
@@ -536,26 +536,27 @@ export default function ProgressaoPage() {
                     onClick={() => !isDisabled && toggleEx(ex.id)}
                     disabled={isDisabled}
                     className={[
-                      'w-full flex items-center gap-2.5 text-left px-2 py-2 rounded-lg transition-colors',
-                      isDisabled ? 'opacity-40 cursor-not-allowed' : 'hover:bg-gray-50',
+                      'w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl transition-all',
+                      isDisabled ? 'opacity-40 cursor-not-allowed' : 'hover:bg-brand-base',
+                      isActive ? 'bg-brand-base border border-brand-elevated/50' : 'border border-transparent'
                     ].join(' ')}
                   >
                     {/* Checkbox customizado */}
-                    <div className="w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors"
-                      style={{ borderColor: isActive ? color : '#d1d5db', backgroundColor: isActive ? color : 'transparent' }}>
+                    <div className="w-4 h-4 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors"
+                      style={{ borderColor: isActive ? color : 'var(--color-brand-elevated)', backgroundColor: isActive ? color : 'transparent' }}>
                       {isActive && (
                         <svg viewBox="0 0 10 8" className="w-2.5 h-2.5">
-                          <path d="M1 4l3 3 5-6" stroke="white" strokeWidth="1.5" fill="none"
+                          <path d="M1 4l3 3 5-6" stroke="var(--color-brand-base)" strokeWidth="2" fill="none"
                             strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                       )}
                     </div>
-                    <span className={`text-xs font-medium flex-1 truncate ${isActive ? 'text-gray-900' : 'text-gray-600'}`}>
+                    <span className={`text-xs font-bold flex-1 truncate ${isActive ? 'text-text-primary' : 'text-text-secondary'}`}>
                       {ex.name}
                     </span>
                     {/* Bolinha de cor quando ativo */}
                     {isActive && (
-                      <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
+                      <div className="w-2 h-2 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: color }} />
                     )}
                   </button>
                 )
@@ -563,22 +564,22 @@ export default function ProgressaoPage() {
             </div>
 
             {/* Dica de estado */}
-            <p className="text-xs text-gray-400 mt-2 text-center leading-snug">
+            <p className="text-[10px] font-bold text-text-muted mt-3 text-center leading-snug uppercase tracking-wide">
               {activeIds.size === 0
-                ? 'Nenhum selecionado — exibindo overview por grupo muscular'
+                ? 'Nenhum selecionado — overview por grupo'
                 : activeIds.size >= MAX_SELECTED
-                ? 'Limite de 5 atingido. Desmarque para adicionar outro.'
+                ? 'Limite de 5 atingido. Desmarque algum.'
                 : `${MAX_SELECTED - activeIds.size} slot${MAX_SELECTED - activeIds.size !== 1 ? 's' : ''} disponível`}
             </p>
           </div>
 
           {/* Análise por Exercício */}
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-              <Target size={12} className="text-gray-400" />
+          <div className="bg-brand-surface rounded-xl border border-brand-elevated p-5">
+            <h3 className="text-xs font-bold text-text-muted uppercase tracking-widest mb-4 flex items-center gap-1.5">
+              <Target size={14} className="text-brand-action" />
               Análise por Exercício
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {milestones.map(({ label, current }) => {
                 const ex = allExercises.find((e) => e.name === label)
                 const exSets = sets.filter((s) => s.exerciseId === ex?.id)
@@ -590,13 +591,13 @@ export default function ProgressaoPage() {
                 const prev = exSets.length > 1 ? exSets.at(-2).weightKg : null
                 const diff = prev !== null ? current - prev : 0
                 return (
-                  <div key={label} className="flex items-center justify-between pb-3 border-b border-gray-50 last:border-0 last:pb-0">
+                  <div key={label} className="flex items-center justify-between pb-3 border-b border-brand-elevated last:border-0 last:pb-0">
                     <div>
-                      <p className="text-xs font-semibold text-gray-800">{label}</p>
-                      <p className="text-xl font-extrabold text-gray-900">{current > 0 ? `${current} kg` : '–'}</p>
+                      <p className="text-xs font-bold text-text-secondary">{label}</p>
+                      <p className="text-xl font-extrabold text-text-primary mt-0.5">{current > 0 ? `${current} kg` : '–'}</p>
                     </div>
                     {diff !== 0 && (
-                      <span className={`text-xs font-bold px-2 py-1 rounded-lg ${diff > 0 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'}`}>
+                      <span className={`text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-md border ${diff > 0 ? 'border-emerald-500/20 text-emerald-700 bg-emerald-500/10' : 'border-brand-action/20 text-brand-action bg-brand-action/10'}`}>
                         {diff > 0 ? '+' : ''}{diff}kg
                       </span>
                     )}

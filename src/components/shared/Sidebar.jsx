@@ -20,14 +20,14 @@ const NAV_ITEMS = [
 
 export function Sidebar() {
   return (
-    <aside className="w-64 min-h-screen bg-gray-900 flex flex-col">
+    <aside className="w-64 min-h-screen bg-brand-base flex flex-col border-r border-brand-elevated">
       {/* Logo */}
-      <div className="px-6 py-7 border-b border-gray-800">
+      <div className="px-6 py-7 border-b border-brand-elevated">
         <div className="flex items-center gap-2.5">
           <span className="text-2xl">🏋️</span>
           <div>
-            <h1 className="text-white font-bold text-lg leading-none">FitProgress</h1>
-            <p className="text-gray-400 text-xs mt-0.5">Gestão de Treinos</p>
+            <h1 className="text-text-primary font-bold text-lg leading-none">FitProgress</h1>
+            <p className="text-text-muted text-xs mt-0.5">Gestão de Treinos</p>
           </div>
         </div>
       </div>
@@ -41,10 +41,10 @@ export function Sidebar() {
             end={to === '/'}
             className={({ isActive }) =>
               [
-                'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors',
+                'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-colors',
                 isActive
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-400 hover:bg-gray-800 hover:text-white',
+                  ? 'bg-brand-action text-white shadow-sm shadow-brand-action/20'
+                  : 'text-text-secondary hover:bg-brand-elevated hover:text-text-primary',
               ].join(' ')
             }
           >
@@ -55,8 +55,8 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="px-6 py-4 border-t border-gray-800">
-        <p className="text-gray-600 text-xs">MVP v0.1.0</p>
+      <div className="px-6 py-4 border-t border-brand-elevated">
+        <p className="text-text-muted text-xs font-medium">MVP v0.1.0</p>
       </div>
     </aside>
   )

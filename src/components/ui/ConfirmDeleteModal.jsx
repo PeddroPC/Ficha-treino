@@ -49,36 +49,36 @@ export function ConfirmDeleteModal({
       />
 
       {/* Painel do modal */}
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 animate-in fade-in zoom-in-95 duration-150">
+      <div className="relative bg-brand-surface border border-brand-elevated rounded-2xl shadow-2xl w-full max-w-sm p-6 animate-in fade-in zoom-in-95 duration-150">
         {/* Botão fechar */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+          className="absolute top-4 right-4 text-text-muted hover:text-text-primary transition-colors"
           aria-label="Fechar"
         >
           <X size={18} />
         </button>
 
         {/* Ícone de alerta */}
-        <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <AlertTriangle size={24} className="text-red-600" />
+        <div className="w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20">
+          <AlertTriangle size={24} className="text-red-500" />
         </div>
 
         {/* Textos */}
         <h2
           id="delete-modal-title"
-          className="text-center text-lg font-bold text-gray-900 mb-1"
+          className="text-center text-lg font-bold text-text-primary mb-1"
         >
           {title}
         </h2>
-        <p className="text-center text-sm text-gray-500 mb-2">
+        <p className="text-center text-sm text-text-secondary mb-2 font-medium">
           Você está prestes a excluir:
         </p>
-        <p className="text-center text-sm font-semibold text-gray-800 bg-gray-50 rounded-lg px-3 py-2 mb-3">
+        <p className="text-center text-sm font-bold text-text-primary bg-brand-base border border-brand-elevated rounded-lg px-3 py-2 mb-3">
           "{itemName}"
         </p>
-        <p className="text-center text-xs text-gray-400 mb-6">
+        <p className="text-center text-xs text-text-muted mb-6">
           {description}
         </p>
 
@@ -88,7 +88,7 @@ export function ConfirmDeleteModal({
             type="button"
             onClick={onClose}
             data-testid="btn-cancel-delete"
-            className="flex-1 border border-gray-300 text-gray-700 font-semibold py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-sm"
+            className="flex-1 border border-brand-elevated bg-brand-base text-text-secondary font-bold py-2.5 rounded-xl hover:bg-brand-elevated transition-colors text-sm"
           >
             Cancelar
           </button>
@@ -96,7 +96,7 @@ export function ConfirmDeleteModal({
             type="button"
             onClick={() => { onConfirm(); onClose() }}
             data-testid="btn-confirm-delete"
-            className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-xl transition-colors text-sm"
+            className="flex-1 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 font-bold py-2.5 rounded-xl transition-colors text-sm"
           >
             Sim, excluir
           </button>
