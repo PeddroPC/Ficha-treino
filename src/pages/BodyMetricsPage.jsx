@@ -141,7 +141,20 @@ function TrendCard({ field, latest, previous }) {
 }
 
 // ── Seção de Calculadora de TMB ─────────────────────────────
-function TmbSection({ tmb, activityLevel, setActivityLevel, actFactor }) {
+function TmbSection({ tmb, activityLevel, setActivityLevel, actFactor, profile, latestWeight }) {
+  const missingFields = []
+  if (!latestWeight && !profile?.weightKg) missingFields.push('peso')
+  if (!profile?.heightCm) missingFields.push('altura')
+  if (!profile?.birthDate) missingFields.push('data de nascimento')
+  
+  // O gênero sempre tem um padrão na fórmula (se não tiver F, é M), mas para ser didático:
+  if (!profile?.gender) missingFields.push('gênero')
+
+  const age = calcAge(profile?.birthDate)
+  if (profile?.birthDate && (!age || age <= 0)) {
+    missingFields.push('data de nascimento válida (idade > 0)')
+  }
+
   return (
     <section className="bg-brand-surface rounded-2xl border border-brand-elevated p-5 shadow-sm">
       <div className="flex items-center gap-2 mb-1">
@@ -154,7 +167,7 @@ function TmbSection({ tmb, activityLevel, setActivityLevel, actFactor }) {
 
       {!tmb ? (
         <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 text-sm text-amber-600">
-          ⚠️ Complete seu perfil com <strong>peso</strong>, <strong>altura</strong>, <strong>data de nascimento</strong> e <strong>gênero</strong> para ver os cálculos.
+          ⚠️ Complete seu perfil para ver os cálculos. Faltam preencher: <strong>{missingFields.join(', ')}</strong>.
         </div>
       ) : (
         <>
@@ -331,7 +344,7 @@ export default function BodyMetricsPage() {
             </button>
           </div>
           {/* Calculadora disponível mesmo sem avaliações */}
-          <TmbSection tmb={tmb} activityLevel={activityLevel} setActivityLevel={setActivityLevel} actFactor={actFactor} />
+          <TmbSection tmb={tmb} activityLevel={activityLevel} setActivityLevel={setActivityLevel} actFactor={actFactor} profile={profile} latestWeight={latest?.weightKg} />
         </div>
       ) : (
         <div className="space-y-5">
@@ -417,7 +430,7 @@ export default function BodyMetricsPage() {
           )}
 
           {/* ── 3. Calculadora de TMB ─────────────────────── */}
-          <TmbSection tmb={tmb} activityLevel={activityLevel} setActivityLevel={setActivityLevel} actFactor={actFactor} />
+          <TmbSection tmb={tmb} activityLevel={activityLevel} setActivityLevel={setActivityLevel} actFactor={actFactor} profile={profile} latestWeight={latest?.weightKg} />
 
           {/* ── 4. Histórico de avaliações ────────────────── */}
           <section className="bg-brand-surface rounded-2xl border border-brand-elevated p-5 shadow-sm">

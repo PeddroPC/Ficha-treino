@@ -1,52 +1,15 @@
 // ============================================================
 // components/workout/WorkoutDrawer.jsx
 // Slide-over de registro de treino ativo (Modo Treino)
-// Otimizado para mobile-first com a nova paleta de cores
+// Otimizado para mobile-first com a nova paleta de cores e visão tabular
 // ============================================================
 import { useState, useEffect, useCallback } from 'react'
-import { X, ChevronLeft, ChevronRight, CheckCircle, Trophy, Dumbbell } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, CheckCircle, Trophy, Dumbbell, Plus } from 'lucide-react'
 import useWorkoutSessionStore from '../../stores/useWorkoutSessionStore.js'
 import useWorkoutStore        from '../../stores/useWorkoutStore.js'
 import useExerciseStore       from '../../stores/useExerciseStore.js'
 import useLogStore            from '../../stores/useLogStore.js'
 import { HistoryContext }     from './HistoryContext.jsx'
-
-// ── Botão +/- com grande área de toque ──────────────────────
-function Stepper({ label, value, onChange, step = 1, min = 0, unit = '' }) {
-  return (
-    <div className="flex flex-col items-center gap-2">
-      <span className="text-xs font-bold text-text-secondary uppercase tracking-widest">
-        {label}
-      </span>
-      <div className="flex items-center gap-4">
-        <button
-          type="button"
-          onClick={() => onChange(Math.max(min, value - step))}
-          className="w-16 h-16 rounded-full bg-brand-elevated hover:bg-brand-highlight active:scale-95 text-text-primary text-3xl font-light flex items-center justify-center transition-all select-none shadow-md"
-          aria-label={`Diminuir ${label}`}
-        >
-          −
-        </button>
-        <div className="w-28 flex flex-col items-center justify-center">
-          <span className="text-5xl font-extrabold text-text-primary tabular-nums tracking-tighter">
-            {value}
-          </span>
-          {unit && (
-            <span className="text-sm font-bold text-text-muted mt-1">{unit}</span>
-          )}
-        </div>
-        <button
-          type="button"
-          onClick={() => onChange(value + step)}
-          className="w-16 h-16 rounded-full bg-brand-elevated hover:bg-brand-highlight active:scale-95 text-text-primary text-3xl font-light flex items-center justify-center transition-all select-none shadow-md"
-          aria-label={`Aumentar ${label}`}
-        >
-          +
-        </button>
-      </div>
-    </div>
-  )
-}
 
 // ── Drawer principal ─────────────────────────────────────────
 export function WorkoutDrawer() {
@@ -59,12 +22,9 @@ export function WorkoutDrawer() {
   const addSet         = useLogStore((s) => s.addSet)
   const finishLog      = useLogStore((s) => s.finishLog)
 
-  // Inputs do stepper
-  const [weight, setWeight] = useState(0)
-  const [reps,   setReps]   = useState(10)
-  const [savedSets, setSavedSets] = useState([])
   const [sessionStarted, setSessionStarted] = useState(false)
   const [showPRBadge, setShowPRBadge] = useState(false)
+  const [workingSets, setWorkingSets] = useState([])
 
   const fichaExercises = [...sheetExercises]
     .filter((se) => se.sheetId === sheetId)
@@ -78,23 +38,64 @@ export function WorkoutDrawer() {
   const totalExercises = fichaExercises.length
   const isLastExercise = currentExerciseIndex >= totalExercises - 1
 
+  // Start log
   useEffect(() => {
     if (isOpen && !sessionStarted && logId) {
       addLog({ id: logId, profileId: 'profile-001', sheetId, startedAt: new Date().toISOString() })
       setSessionStarted(true)
-      setSavedSets([])
     }
     if (!isOpen) {
       setSessionStarted(false)
-      setSavedSets([])
     }
   }, [isOpen, logId])
 
+  // Initialize Working Sets when exercise changes
   useEffect(() => {
-    if (!currentSheetEx) return
-    setReps(currentSheetEx.targetRepsMin ?? 10)
-    setWeight((w) => w === 0 ? (currentSheetEx.targetRepsMin ?? 10) : w)
-  }, [currentExerciseIndex, currentSheetEx])
+    if (!currentSheetEx || !logId) return
+    
+    // Check how many sets were already saved in the global store for this log/exercise
+    const allSets = useLogStore.getState().sets
+    const saved = allSets.filter(s => s.logId === logId && s.exerciseId === currentSheetEx.exerciseId)
+    
+    const targetSets = currentSheetEx.targetSets || 3
+    const rows = []
+    
+    // Pre-fill saved sets
+    for (let i = 0; i < saved.length; i++) {
+      rows.push({
+        id: `saved-${saved[i].id}`,
+        isSaved: true,
+        weight: saved[i].weightKg,
+        reps: saved[i].reps,
+        isPR: saved[i].isPR
+      })
+    }
+    
+    // Fill the rest with empty pending sets up to targetSets
+    const remaining = Math.max(0, targetSets - saved.length)
+    for (let i = 0; i < remaining; i++) {
+      rows.push({
+        id: `pending-${Date.now()}-${i}`,
+        isSaved: false,
+        weight: '',
+        reps: currentSheetEx.targetRepsMin ?? 10,
+        isPR: false
+      })
+    }
+    
+    // Se não tinha targetSets e não tem salvo, bota pelo menos 1
+    if (rows.length === 0) {
+      rows.push({
+        id: `pending-${Date.now()}-0`,
+        isSaved: false,
+        weight: '',
+        reps: 10,
+        isPR: false
+      })
+    }
+
+    setWorkingSets(rows)
+  }, [currentExerciseIndex, currentSheetEx, logId])
 
   const checkIsPR = useCallback((exerciseId, newWeight) => {
     const allSets = useLogStore.getState().sets
@@ -104,26 +105,50 @@ export function WorkoutDrawer() {
     return newWeight > maxPrev
   }, [])
 
-  const handleSaveSet = () => {
-    if (!currentSheetEx || !logId) return
+  const handleUpdateRow = (index, field, value) => {
+    const copy = [...workingSets]
+    copy[index] = { ...copy[index], [field]: Number(value) }
+    setWorkingSets(copy)
+  }
 
-    const isPR = checkIsPR(currentSheetEx.exerciseId, weight)
+  const handleSaveSet = (index) => {
+    if (!currentSheetEx || !logId) return
+    
+    const row = workingSets[index]
+    if (row.isSaved) return
+    
+    const w = Number(row.weight) || 0
+    const r = Number(row.reps) || 0
+    
+    const isPR = checkIsPR(currentSheetEx.exerciseId, w)
     if (isPR) { setShowPRBadge(true); setTimeout(() => setShowPRBadge(false), 2000) }
 
     addSet({
       logId,
       exerciseId: currentSheetEx.exerciseId,
-      setNumber: currentSetNumber,
-      reps,
-      weightKg: weight,
+      setNumber: index + 1,
+      reps: r,
+      weightKg: w,
       restSeconds: currentSheetEx.targetRestSeconds ?? 90,
       isDropSet: false,
       isPR,
       notes: '',
     })
 
-    setSavedSets((prev) => [...prev, { exerciseId: currentSheetEx.exerciseId, weight, reps, isPR }])
+    const copy = [...workingSets]
+    copy[index] = { ...row, weight: w, reps: r, isSaved: true, isPR }
+    setWorkingSets(copy)
     nextSet()
+  }
+  
+  const handleAddSetRow = () => {
+    setWorkingSets([...workingSets, {
+      id: `pending-${Date.now()}`,
+      isSaved: false,
+      weight: '',
+      reps: currentSheetEx?.targetRepsMin ?? 10,
+      isPR: false
+    }])
   }
 
   const handleFinish = () => {
@@ -197,16 +222,13 @@ export function WorkoutDrawer() {
         </div>
 
         {/* ── Conteúdo principal ──────────────────────────── */}
-        <div className="flex-1 flex flex-col px-5 py-6 overflow-y-auto">
+        <div className="flex-1 flex flex-col px-5 py-6 overflow-y-auto custom-scrollbar">
           {!currentEx ? (
             <div className="flex-1 flex flex-col items-center justify-center gap-4">
               <CheckCircle size={64} className="text-brand-action" strokeWidth={1.5} />
               <h2 className="text-text-primary text-2xl font-bold text-center">
                 Treino Concluído! 🎉
               </h2>
-              <p className="text-text-secondary text-sm text-center">
-                {savedSets.length} séries registradas
-              </p>
               <button
                 type="button"
                 onClick={handleFinish}
@@ -227,12 +249,11 @@ export function WorkoutDrawer() {
                     {currentEx.name}
                   </h2>
                   <p className="text-text-secondary text-sm mt-1 font-medium">
-                    Série <span className="text-brand-action font-bold">{currentSetNumber}</span>
                     {currentSheetEx.targetSets && (
-                      <span className="text-text-muted"> / {currentSheetEx.targetSets}</span>
+                      <span className="text-text-primary font-bold">{currentSheetEx.targetSets} Séries</span>
                     )}
                     {currentSheetEx.targetRestSeconds && (
-                      <span className="text-text-muted"> · {currentSheetEx.targetRestSeconds}s rest</span>
+                      <span className="text-text-muted"> · {currentSheetEx.targetRestSeconds}s descanso</span>
                     )}
                   </p>
                 </div>
@@ -249,59 +270,74 @@ export function WorkoutDrawer() {
               {/* Histórico Contextual da última sessão */}
               <HistoryContext exerciseId={currentSheetEx.exerciseId} currentLogId={logId} dark={true} />
 
-              {/* Steppers */}
-              <div className="flex flex-col gap-10 mb-10 mt-6">
-                <Stepper
-                  label="Carga (kg)"
-                  value={weight}
-                  onChange={setWeight}
-                  step={2.5}
-                  min={0}
-                  unit="kg"
-                />
-                <Stepper
-                  label="Repetições"
-                  value={reps}
-                  onChange={setReps}
-                  step={1}
-                  min={1}
-                />
+              {/* Tabela de Séries */}
+              <div className="mt-8 mb-4">
+                <div className="flex items-center px-2 mb-2">
+                  <div className="w-12 text-center text-[10px] font-bold text-text-muted uppercase tracking-widest">Série</div>
+                  <div className="flex-1 text-center text-[10px] font-bold text-text-muted uppercase tracking-widest">kg</div>
+                  <div className="flex-1 text-center text-[10px] font-bold text-text-muted uppercase tracking-widest">Reps</div>
+                  <div className="w-12 text-center text-[10px] font-bold text-text-muted uppercase tracking-widest"><CheckCircle size={14} className="mx-auto" /></div>
+                </div>
+
+                <div className="space-y-2">
+                  {workingSets.map((row, index) => (
+                    <div key={row.id} className={`flex items-center gap-2 px-2 py-2 rounded-xl transition-colors ${row.isSaved ? 'bg-brand-action/10 border border-brand-action/20' : 'bg-brand-surface border border-brand-elevated'}`}>
+                      <div className="w-12 text-center">
+                        {row.isSaved && row.isPR ? (
+                          <div className="w-6 h-6 mx-auto bg-yellow-400/20 rounded-full flex items-center justify-center">
+                            <Trophy size={12} className="text-yellow-500" />
+                          </div>
+                        ) : (
+                          <span className={`text-sm font-bold ${row.isSaved ? 'text-brand-action' : 'text-text-secondary'}`}>{index + 1}</span>
+                        )}
+                      </div>
+                      
+                      <div className="flex-1">
+                        <input 
+                          type="number"
+                          placeholder="-"
+                          disabled={row.isSaved}
+                          className="w-full text-center bg-brand-base border border-brand-elevated rounded-lg py-2 text-base font-bold text-text-primary focus:border-brand-action focus:ring-1 focus:ring-brand-action disabled:opacity-80"
+                          value={row.weight}
+                          onChange={(e) => handleUpdateRow(index, 'weight', e.target.value)}
+                        />
+                      </div>
+                      
+                      <div className="flex-1">
+                        <input 
+                          type="number"
+                          placeholder="-"
+                          disabled={row.isSaved}
+                          className="w-full text-center bg-brand-base border border-brand-elevated rounded-lg py-2 text-base font-bold text-text-primary focus:border-brand-action focus:ring-1 focus:ring-brand-action disabled:opacity-80"
+                          value={row.reps}
+                          onChange={(e) => handleUpdateRow(index, 'reps', e.target.value)}
+                        />
+                      </div>
+                      
+                      <div className="w-12 text-center flex justify-center">
+                        <button 
+                          type="button"
+                          disabled={row.isSaved || row.reps === ''}
+                          onClick={() => handleSaveSet(index)}
+                          className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${row.isSaved ? 'bg-brand-action text-white' : 'bg-brand-elevated hover:bg-brand-highlight text-text-secondary disabled:opacity-50'}`}
+                        >
+                          <CheckCircle size={18} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <button
+                  type="button"
+                  onClick={handleAddSetRow}
+                  className="mt-4 flex items-center justify-center gap-2 w-full text-text-muted hover:text-text-primary font-bold text-sm py-2 transition-colors"
+                >
+                  <Plus size={16} />
+                  Adicionar Série
+                </button>
               </div>
 
-              {/* Histórico desta sessão */}
-              {savedSets.filter((s) => s.exerciseId === currentSheetEx.exerciseId).length > 0 && (
-                <div className="mb-8">
-                  <p className="text-text-muted text-xs font-bold uppercase tracking-widest mb-3">
-                    Séries Feitas
-                  </p>
-                  <div className="space-y-2">
-                    {savedSets
-                      .filter((s) => s.exerciseId === currentSheetEx.exerciseId)
-                      .map((s, i) => (
-                        <div
-                          key={i}
-                          className="flex items-center justify-between bg-brand-surface border border-brand-elevated rounded-xl px-4 py-3"
-                        >
-                          <span className="text-text-secondary text-sm font-medium">Série {i + 1}</span>
-                          <div className="flex items-center gap-3">
-                            {s.isPR && <Trophy size={14} className="text-yellow-400" />}
-                            <span className="text-text-primary text-base font-bold">{s.weight}kg</span>
-                            <span className="text-text-muted text-sm font-bold">× {s.reps}</span>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Botão salvar série */}
-              <button
-                type="button"
-                onClick={handleSaveSet}
-                className="w-full bg-brand-action hover:bg-brand-structural active:scale-95 text-white font-bold py-5 rounded-xl text-xl transition-all select-none shadow-lg shadow-brand-action/20"
-              >
-                Salvar Série
-              </button>
             </>
           )}
         </div>
@@ -321,9 +357,9 @@ export function WorkoutDrawer() {
             <button
               type="button"
               onClick={isLastExercise ? handleFinish : nextExercise}
-              className="flex-1 flex items-center justify-center gap-1.5 py-4 rounded-xl bg-brand-elevated hover:bg-brand-highlight text-text-primary font-bold text-sm transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 py-4 rounded-xl bg-brand-action text-white hover:bg-brand-structural font-bold text-sm transition-colors shadow-lg shadow-brand-action/20"
             >
-              {isLastExercise ? 'Concluir' : 'Próximo'}
+              {isLastExercise ? 'Concluir Treino' : 'Próximo Exercício'}
               <ChevronRight size={18} />
             </button>
           </div>

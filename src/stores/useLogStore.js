@@ -34,6 +34,35 @@ const useLogStore = create(
           }
         }),
 
+      updateLog: (logId, updates) =>
+        set((state) => {
+          const newLogs = state.logs.map((l) =>
+            l.id === logId ? { ...l, ...updates } : l
+          )
+          
+          const updatedLog = newLogs.find(l => l.id === logId)
+          if (updatedLog) {
+            useSyncQueueStore.getState().enqueue('logs', 'upsert', updatedLog, logId)
+          }
+
+          return { logs: newLogs }
+        }),
+
+      removeLog: (logId) =>
+        set((state) => {
+          // Remove the log and its sets
+          useSyncQueueStore.getState().enqueue('logs', 'delete', { id: logId }, logId)
+          const setsToRemove = state.sets.filter(s => s.logId === logId)
+          setsToRemove.forEach(s => {
+            useSyncQueueStore.getState().enqueue('sets', 'delete', { id: s.id }, s.id)
+          })
+
+          return {
+            logs: state.logs.filter((l) => l.id !== logId),
+            sets: state.sets.filter((s) => s.logId !== logId),
+          }
+        }),
+
       finishLog: (logId, { finishedAt, durationMinutes, notes, perceivedEffort }) =>
         set((state) => {
           const newLogs = state.logs.map((l) =>

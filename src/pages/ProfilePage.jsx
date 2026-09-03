@@ -1,16 +1,19 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { PageHeader } from '../components/shared/PageHeader.jsx'
 import { Card } from '../components/ui/Card.jsx'
 import useProfileStore from '../stores/useProfileStore.js'
 import useSettingsStore from '../stores/useSettingsStore.js'
 import { GoalLabel } from '../constants/enums.js'
-import { User, Download, Upload, Trash2, ShieldAlert } from 'lucide-react'
+import { User, Download, Upload, Trash2, ShieldAlert, Activity, Ruler, Calendar, Info, Edit3, Dumbbell } from 'lucide-react'
 import { exportDataAsJson, importDataFromJson, enableDemoMode, enableRealMode } from '../lib/dataManager.js'
+import { EditProfileModal, ExperienceLevelLabel } from '../components/profile/EditProfileModal.jsx'
 
 export default function ProfilePage() {
   const profile = useProfileStore((s) => s.profile)
   const isDemoMode = useSettingsStore((s) => s.isDemoMode)
   const fileInputRef = useRef(null)
+  
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
   const handleImportClick = () => {
     fileInputRef.current?.click()
@@ -46,61 +49,123 @@ export default function ProfilePage() {
     }
   }
 
-  const fields = profile ? [
-    { label: 'Nome', value: profile.name },
-    { label: 'Data de Nascimento', value: profile.birthDate ? new Date(profile.birthDate).toLocaleDateString('pt-BR') : '–' },
-    { label: 'Peso', value: profile.weightKg ? `${profile.weightKg} kg` : '–' },
-    { label: 'Altura', value: profile.heightCm ? `${profile.heightCm} cm` : '–' },
-    { label: 'Objetivo', value: GoalLabel[profile.goal] ?? profile.goal },
-  ] : []
+  // Helpers
+  const getAge = (birthDate) => {
+    if (!birthDate) return 'Idade não informada'
+    const today = new Date()
+    const birth = new Date(birthDate)
+    let age = today.getFullYear() - birth.getFullYear()
+    const m = today.getMonth() - birth.getMonth()
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+      age--
+    }
+    return `${age} anos`
+  }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20">
       <PageHeader
         title="Perfil & Configurações"
-        subtitle="Gerencie seus dados e preferências"
+        subtitle="Sua Ficha Cadastral e Evolutiva"
       />
 
-      {/* Seção de Perfil */}
-      <div className="bg-brand-surface border border-brand-elevated rounded-xl p-5 shadow-sm max-w-lg">
+      {/* 1. Header Card (Identificação) */}
+      <div className="bg-brand-surface border border-brand-elevated rounded-xl p-5 shadow-sm max-w-xl relative">
+        <button
+          onClick={() => setIsEditModalOpen(true)}
+          className="absolute top-4 right-4 text-text-muted hover:text-brand-action transition-colors bg-brand-base border border-brand-elevated p-2 rounded-lg"
+          aria-label="Editar Perfil"
+        >
+          <Edit3 size={18} />
+        </button>
+
         {!profile ? (
           <div className="py-10 text-center">
             <User size={40} className="text-text-muted mx-auto mb-3" />
-            <p className="text-text-secondary font-medium">Nenhum perfil configurado.</p>
+            <p className="text-text-secondary font-medium mb-4">Nenhum perfil configurado.</p>
+            <button onClick={() => setIsEditModalOpen(true)} className="bg-brand-action text-white font-bold py-2 px-6 rounded-lg">Criar Perfil</button>
           </div>
         ) : (
-          <>
-            <div className="flex items-center justify-between mb-6 pb-6 border-b border-brand-elevated">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-brand-elevated rounded-2xl flex items-center justify-center">
-                  <User size={28} className="text-brand-action" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-text-primary">{profile.name}</h3>
-                  <p className="text-text-secondary font-medium text-sm mt-0.5">{GoalLabel[profile.goal] ?? profile.goal}</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                className="bg-brand-elevated hover:opacity-80 text-text-primary text-sm font-bold px-4 py-2.5 rounded-xl transition-opacity"
-              >
-                Editar
-              </button>
+          <div className="flex items-center gap-5">
+            <div className="w-20 h-20 bg-brand-action text-white rounded-full flex flex-col items-center justify-center shrink-0 text-2xl font-bold shadow-md">
+              {(profile.name || 'A').charAt(0).toUpperCase()}
             </div>
-            <dl className="space-y-4">
-              {fields.map(({ label, value }) => (
-                <div key={label} className="flex justify-between items-center">
-                  <dt className="text-sm font-medium text-text-muted">{label}</dt>
-                  <dd className="text-sm font-bold text-text-primary">{value}</dd>
-                </div>
-              ))}
-            </dl>
-          </>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-2xl font-extrabold text-text-primary truncate">{profile.name}</h3>
+              <p className="text-text-secondary font-medium text-sm mt-1">{getAge(profile.birthDate)}</p>
+              
+              <div className="flex flex-wrap gap-2 mt-3">
+                <span className="bg-brand-elevated text-text-secondary text-xs font-bold px-2.5 py-1 rounded-md">
+                  {ExperienceLevelLabel[profile.experienceLevel] ?? 'Nível não definido'}
+                </span>
+                <span className="bg-brand-action/10 text-brand-action text-xs font-bold px-2.5 py-1 rounded-md">
+                  Alvo: {GoalLabel[profile.goal] ?? profile.goal}
+                </span>
+              </div>
+            </div>
+          </div>
         )}
       </div>
 
-      {/* Seção de Configurações / Backup */}
-      <div className="bg-brand-surface border border-brand-elevated rounded-xl p-5 shadow-sm max-w-lg">
+      {profile && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
+          {/* 2. Biometric Card */}
+          <div className="bg-brand-surface border border-brand-elevated rounded-xl p-5 shadow-sm">
+            <h3 className="text-sm font-bold text-brand-action uppercase tracking-widest mb-4 flex items-center gap-2">
+              <Activity size={16} /> Biometria Básica
+            </h3>
+            
+            <dl className="grid grid-cols-2 gap-y-4 gap-x-2">
+              <div>
+                <dt className="text-xs font-bold text-text-muted uppercase">Peso Atual</dt>
+                <dd className="text-xl font-bold text-text-primary mt-0.5">{profile.weightKg ? `${profile.weightKg} kg` : '–'}</dd>
+              </div>
+              <div>
+                <dt className="text-xs font-bold text-text-muted uppercase">Altura</dt>
+                <dd className="text-xl font-bold text-text-primary mt-0.5">{profile.heightCm ? `${profile.heightCm} cm` : '–'}</dd>
+              </div>
+              <div>
+                <dt className="text-xs font-bold text-text-muted uppercase">IMC</dt>
+                <dd className="text-xl font-bold text-text-primary mt-0.5">
+                  {profile.weightKg && profile.heightCm 
+                    ? (profile.weightKg / Math.pow(profile.heightCm / 100, 2)).toFixed(1) 
+                    : '–'}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-bold text-text-muted uppercase">Gênero</dt>
+                <dd className="text-xl font-bold text-text-primary mt-0.5">
+                  {profile.gender === 'M' ? 'Masculino' : profile.gender === 'F' ? 'Feminino' : 'Outro'}
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          {/* 3. Training Preferences Card */}
+          <div className="bg-brand-surface border border-brand-elevated rounded-xl p-5 shadow-sm">
+            <h3 className="text-sm font-bold text-brand-action uppercase tracking-widest mb-4 flex items-center gap-2">
+              <Dumbbell size={16} /> Preferências & Restrições
+            </h3>
+            
+            <div className="space-y-4">
+              <div>
+                <p className="text-xs font-bold text-text-muted uppercase mb-1 flex items-center gap-1.5"><Calendar size={14}/> Frequência Alvo</p>
+                <p className="text-base font-bold text-text-primary">{profile.weeklyFrequency || 4} dias na semana</p>
+              </div>
+              
+              <div>
+                <p className="text-xs font-bold text-text-muted uppercase mb-1 flex items-center gap-1.5"><Info size={14} className="text-amber-500"/> Lesões / Observações</p>
+                <p className={`text-sm ${profile.injuries ? 'text-text-primary font-medium' : 'text-text-muted italic'}`}>
+                  {profile.injuries || "Nenhuma restrição informada. Apto para treino padrão."}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 4. Configurações e Backup (Sistema) */}
+      <div className="bg-brand-surface border border-brand-elevated rounded-xl p-5 shadow-sm max-w-4xl">
         <div className="mb-5">
           <h3 className="text-lg font-bold text-text-primary">Backup & Restauração</h3>
           <p className="text-sm text-text-secondary mt-1">Seus dados são salvos apenas neste navegador. Exporte-os frequentemente para não perdê-los.</p>
@@ -173,6 +238,9 @@ export default function ProfilePage() {
           </button>
         </div>
       </div>
+      
+      {/* Modal de Edição */}
+      <EditProfileModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} />
     </div>
   )
 }

@@ -76,7 +76,7 @@ export default function DashboardPage() {
           onSelect={setSelectedSheetId}
         />
         
-        <ProgressionChart />
+        <ProgressionChart sheetId={selectedSheetId} />
         
         <FichaDetail sheetId={selectedSheetId} />
         

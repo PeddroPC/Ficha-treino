@@ -3,7 +3,7 @@
 // Gráfico de linha — progressão de cargas dos últimos 30 dias
 // Usa Recharts LineChart com dados calculados dos execution sets
 // ============================================================
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer,
@@ -11,12 +11,7 @@ import {
 import useLogStore from '../../stores/useLogStore.js'
 import useExerciseStore from '../../stores/useExerciseStore.js'
 
-// Exercícios principais a exibir no gráfico (ids dos seeds)
-const TRACKED = [
-  { id: 'ex-013', color: '#3b82f6' }, // Agachamento
-  { id: 'ex-001', color: '#f97316' }, // Supino
-  { id: 'ex-004', color: '#22c55e' }, // Levantamento Terra
-]
+const COLORS = ['#169C96', '#D9AD5B', '#3b82f6', '#f43f5e', '#8b5cf6']
 
 /** Formata Date para string curta "DD/MM" */
 const fmt = (dateStr) => {
@@ -24,20 +19,52 @@ const fmt = (dateStr) => {
   return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`
 }
 
-export function ProgressionChart() {
+export function ProgressionChart({ sheetId }) {
   const logs     = useLogStore((s) => s.logs)
   const sets     = useLogStore((s) => s.sets)
   const exercises = useExerciseStore((s) => s.exercises)
 
-  /** Monta os dados do gráfico: uma entrada por sessão, com peso máximo de cada exercício */
+  const [timeframe, setTimeframe] = useState(30)
+
+  // Filtra logs que pertencem à ficha selecionada (se houver)
+  const validLogIds = useMemo(() => {
+    if (!sheetId) return new Set(logs.map(l => l.id))
+    return new Set(logs.filter((l) => l.sheetId === sheetId).map((l) => l.id))
+  }, [logs, sheetId])
+
+  /** 1. Determina dinamicamente os top 3 exercícios mais frequentes da ficha selecionada */
+  const trackedExercises = useMemo(() => {
+    const relevantSets = sets.filter((s) => validLogIds.has(s.logId))
+    if (!relevantSets.length) return []
+    
+    const count = {}
+    relevantSets.forEach((s) => {
+      count[s.exerciseId] = (count[s.exerciseId] || 0) + 1
+    })
+    
+    return Object.entries(count)
+      .sort((a, b) => b[1] - a[1]) // Descending
+      .slice(0, 3)
+      .map(([id], idx) => {
+        const ex = exercises.find((e) => e.id === id)
+        return {
+          id,
+          ex,
+          color: COLORS[idx % COLORS.length]
+        }
+      })
+      .filter((t) => t.ex) // garante que existe
+  }, [sets, exercises, validLogIds])
+
+  /** 2. Monta os dados do gráfico: uma entrada por sessão, com peso máximo de cada exercício rastreadado */
   const chartData = useMemo(() => {
     const cutoff = new Date()
-    cutoff.setDate(cutoff.getDate() - 30)
+    cutoff.setDate(cutoff.getDate() - timeframe)
 
     // Agrupa logs por data (dia)
     const logsByDate = {}
     logs
-      .filter((l) => new Date(l.startedAt) >= cutoff)
+      .filter((l) => new Date(l.startedAt) >= cutoff && validLogIds.has(l.id))
       .forEach((log) => {
         const day = log.startedAt.slice(0, 10)
         if (!logsByDate[day]) logsByDate[day] = []
@@ -46,14 +73,13 @@ export function ProgressionChart() {
 
     return Object.entries(logsByDate)
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([day, logIds]) => {
+      .map(([day, logIdsForDay]) => {
         const point = { date: fmt(day) }
 
-        TRACKED.forEach(({ id }) => {
-          const ex = exercises.find((e) => e.id === id)
+        trackedExercises.forEach(({ id, ex }) => {
           if (!ex) return
           const relevant = sets.filter(
-            (s) => logIds.includes(s.logId) && s.exerciseId === id
+            (s) => logIdsForDay.includes(s.logId) && s.exerciseId === id
           )
           if (relevant.length) {
             point[ex.name] = Math.max(...relevant.map((s) => s.weightKg))
@@ -62,18 +88,13 @@ export function ProgressionChart() {
 
         return point
       })
-  }, [logs, sets, exercises])
-
-  const trackedExercises = TRACKED.map(({ id, color }) => ({
-    ex: exercises.find((e) => e.id === id),
-    color,
-  })).filter((t) => t.ex)
+  }, [logs, sets, trackedExercises, validLogIds, timeframe])
 
   // Tooltip personalizado
   const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length) return null
     return (
-      <div className="bg-brand-surface border border-brand-elevated rounded-lg shadow-lg p-3 text-xs">
+      <div className="bg-brand-surface border border-brand-elevated rounded-lg shadow-lg p-3 text-xs z-50 relative">
         <p className="font-bold text-text-primary mb-2">{label}</p>
         {payload.map((entry) => (
           <p key={entry.name} style={{ color: entry.color }} className="font-medium">
@@ -90,13 +111,21 @@ export function ProgressionChart() {
         <h2 className="text-[10px] font-bold text-text-primary uppercase tracking-widest">
           Progressão de Cargas
         </h2>
-        <span className="text-[10px] text-text-muted">Últimos 30 Dias</span>
+        <select
+          value={timeframe}
+          onChange={(e) => setTimeframe(Number(e.target.value))}
+          className="bg-brand-surface border border-brand-elevated text-text-secondary text-xs rounded-lg px-2 py-1 outline-none focus:border-brand-action"
+        >
+          <option value={7}>Semanal</option>
+          <option value={30}>Mensal</option>
+          <option value={90}>3 Meses</option>
+        </select>
       </div>
 
-      <div className="bg-brand-surface border border-brand-elevated rounded-xl p-4 shadow-sm">
+      <div className="bg-brand-surface border border-brand-elevated rounded-xl p-4 shadow-sm relative">
         {chartData.length < 2 ? (
           <div className="flex items-center justify-center h-48 text-text-muted text-sm text-center px-4">
-            Sua progressão começa aqui. Registre seu primeiro treino para ver seu crescimento!
+            Sua progressão começa aqui. Registre treinos desta ficha em dias diferentes para ver seu crescimento!
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={220}>
@@ -125,9 +154,9 @@ export function ProgressionChart() {
                   key={ex.id}
                   type="monotone"
                   dataKey={ex.name}
-                  stroke={color === '#f97316' ? '#D9AD5B' : color === '#3b82f6' ? '#169C96' : color}
+                  stroke={color}
                   strokeWidth={2.5}
-                  dot={{ r: 4, fill: color === '#f97316' ? '#D9AD5B' : color === '#3b82f6' ? '#169C96' : color, strokeWidth: 0 }}
+                  dot={{ r: 4, fill: color, strokeWidth: 0 }}
                   activeDot={{ r: 6 }}
                   connectNulls
                 />
