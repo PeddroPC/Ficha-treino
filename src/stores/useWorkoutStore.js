@@ -20,7 +20,7 @@ const useWorkoutStore = create(
 
       addSheet: (sheet) =>
         (() => {
-          const id = generateId('sheet')
+          const id = sheet.id || generateId('sheet')
           const now = new Date().toISOString()
           const newSheet = { ...sheet, id, isActive: true, createdAt: now, updatedAt: now }
           

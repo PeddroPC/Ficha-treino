@@ -18,8 +18,9 @@ export default function LoginPage() {
 
     try {
       await AuthService.signIn(email, password)
-      // Redirecionamento é feito pelo ProtectedRoute e state authStore, mas garantimos:
-      navigate('/', { replace: true })
+      // Força o reload da página para garantir que o Zustand limpe a memória e inicialize
+      // com a key do localStorage do novo usuário, evitando contaminação de estado (cross-talk).
+      window.location.href = '/'
     } catch (err) {
       if (err.message?.includes('Email not confirmed')) {
         setError('Confirme seu e-mail (clique no link enviado) antes de entrar. Se você é o dev, desative a confirmação no painel do Supabase.')

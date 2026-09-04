@@ -127,6 +127,11 @@ export const SyncDownstream = {
         console.log('[SyncDownstream] O banco de dados online está vazio para os dados deste usuário. Preservando os dados locais do usuário.')
       }
 
+      // 4. Injeta os dados de demonstração caso seja elegível (novo usuário)
+      // O módulo é importado dinamicamente para evitar ciclo de dependência circular no boot
+      const { DemoDataService } = await import('../demo/DemoDataService.js')
+      await DemoDataService.seedDemoDataIfNeeded(user)
+
     } catch (error) {
       console.error('[SyncDownstream] Falha ao restaurar dados da nuvem', error)
       throw error

@@ -159,6 +159,7 @@ export default function ProfilePage() {
                 <button 
                   onClick={async () => {
                     await AuthService.signOut()
+                    window.location.href = '/login'
                   }}
                   className="flex-1 flex items-center justify-center gap-2 bg-red-500 text-white hover:bg-red-600 font-bold py-2.5 px-4 rounded-lg transition-colors shadow-sm"
                 >

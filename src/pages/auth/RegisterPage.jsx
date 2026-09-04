@@ -32,15 +32,16 @@ export default function RegisterPage() {
     try {
       // O Supabase Auth permite salvar metadata opcional (como displayName)
       // Passamos o nome apenas para o Supabase armazenar no token se possível.
-      const { data, error } = await AuthService.signUp(email, password)
+      const data = await AuthService.signUp(email, password)
       
       // Se houver mensagem sobre confirmação de e-mail (caso configurado no painel)
       if (data?.user && data.user.identities && data.user.identities.length === 0) {
         setError('Este e-mail já está em uso.')
         return
       }
-
-      navigate('/', { replace: true })
+      
+      // Força o reload da página para garantir o isolamento de estado do Zustand
+      window.location.href = '/'
     } catch (err) {
       if (err.status === 429 || err.message?.toLowerCase().includes('rate limit')) {
         setError('Muitas tentativas. Por favor, aguarde alguns minutos antes de tentar novamente.')
