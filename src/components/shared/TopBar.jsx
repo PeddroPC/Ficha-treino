@@ -40,13 +40,18 @@ export function TopBar() {
           {/* Usuário */}
           <NavLink
             to="/perfil"
-            className="flex items-center gap-3 shrink-0 group"
+            className="flex items-center gap-2 shrink-0 group"
+            aria-label="Perfil"
           >
             <span className="hidden sm:block text-sm text-text-secondary group-hover:text-brand-primary font-medium transition-colors truncate max-w-[100px]">
-              {profile?.name ?? 'Atleta'}
+              {profile?.name ?? 'Perfil'}
             </span>
-            <div className="w-8 h-8 bg-brand-primary rounded-full flex items-center justify-center text-brand-base text-xs font-bold shrink-0 transition-transform group-hover:scale-105">
-              {(profile?.name ?? 'A').charAt(0).toUpperCase()}
+            <div className="w-8 h-8 bg-brand-surface border border-brand-elevated rounded-full flex items-center justify-center text-text-secondary group-hover:text-brand-action transition-colors shrink-0 shadow-sm">
+              {profile?.name ? (
+                <span className="text-xs font-bold text-brand-action">{profile.name.charAt(0).toUpperCase()}</span>
+              ) : (
+                <Dumbbell size={16} />
+              )}
             </div>
           </NavLink>
         </div>

@@ -198,29 +198,6 @@ export default function ProgressaoPage() {
     return [...keys]
   }, [muscleGroupData])
 
-  // ── Volume semanal empilhado ───────────────────────────────
-  const volumeData = useMemo(() => {
-    const byWeek = {}
-    logsInPeriod.forEach((log) => {
-      const wk = weekKey(new Date(log.startedAt))
-      if (!byWeek[wk]) byWeek[wk] = { week: fmtDate(wk) }
-      sets.filter((s) => s.logId === log.id).forEach((s) => {
-        const ex = allExercises.find((e) => e.id === s.exerciseId)
-        if (!ex) return
-        const label = ex.name
-        byWeek[wk][label] = (byWeek[wk][label] ?? 0) + Math.round(s.weightKg * s.reps)
-      })
-    })
-    return Object.values(byWeek)
-  }, [logsInPeriod, sets, allExercises])
-
-  // Exercícios presentes no volume
-  const volumeExercises = useMemo(() => {
-    const seen = new Set()
-    volumeData.forEach((pt) => Object.keys(pt).forEach((k) => { if (k !== 'week') seen.add(k) }))
-    return allExercises.filter((e) => seen.has(e.name))
-  }, [volumeData, allExercises])
-
   // ── Frequência semanal ─────────────────────────────────────
   const frequencyData = useMemo(() => {
     const byWeek = {}
@@ -349,33 +326,6 @@ export default function ProgressaoPage() {
               </ResponsiveContainer>
             )}
           </div>
-
-          {/* 2. Volume empilhado (apenas se há dados) */}
-          {volumeData.length > 0 && (
-            <div className="bg-brand-surface rounded-xl border border-brand-elevated p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xs font-bold text-text-muted uppercase tracking-widest">
-                  Volume de Treino e Distribuição
-                </h2>
-                <span className="text-xs text-text-secondary">reps × kg / semana</span>
-              </div>
-              <ResponsiveContainer width="100%" height={180}>
-                <BarChart data={volumeData} margin={{ top: 0, right: 8, left: -12, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-brand-elevated)" />
-                  <XAxis dataKey="week" tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} tickLine={false} axisLine={false} />
-                  <YAxis tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} tickLine={false} axisLine={false} width={48}
-                    tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(1)}k` : v} />
-                  <Tooltip cursor={{fill: 'rgba(0,0,0,0.05)'}} contentStyle={{ backgroundColor: 'var(--color-brand-surface)', borderColor: 'var(--color-brand-elevated)', borderRadius: '0.75rem', color: 'var(--color-text-primary)' }} formatter={(v, name) => [`${v.toLocaleString('pt-BR')} kg`, name]} />
-                  <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '8px', color: 'var(--color-text-primary)' }} iconType="square" iconSize={8} />
-                  {volumeExercises.slice(0, 6).map((ex, i) => (
-                    <Bar key={ex.id} dataKey={ex.name} stackId="vol"
-                      fill={PALETTE[i % PALETTE.length]} fillOpacity={0.85}
-                      radius={i === Math.min(volumeExercises.length - 1, 5) ? [3,3,0,0] : [0,0,0,0]} />
-                  ))}
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          )}
 
           {/* 3. Frequência + Marcos */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">

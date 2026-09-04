@@ -10,18 +10,20 @@ const useWorkoutSessionStore = create((set, get) => ({
   isOpen: false,
   sheetId: null,
   logId: null,
+  sessionDate: null,
   currentExerciseIndex: 0,
   currentSetNumber: 1,
 
   // ── Actions ──────────────────────────────────────────────
 
   /** Abre o drawer e inicia uma nova sessão */
-  startSession: (sheetId) => {
+  startSession: (sheetId, customDate = null) => {
     const logId = generateId('log')
     set({
       isOpen: true,
       sheetId,
       logId,
+      sessionDate: customDate,
       currentExerciseIndex: 0,
       currentSetNumber: 1,
     })

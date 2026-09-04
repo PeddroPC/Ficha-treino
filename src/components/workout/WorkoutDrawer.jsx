@@ -41,7 +41,9 @@ export function WorkoutDrawer() {
   // Start log
   useEffect(() => {
     if (isOpen && !sessionStarted && logId) {
-      addLog({ id: logId, profileId: 'profile-001', sheetId, startedAt: new Date().toISOString() })
+      const { sessionDate } = useWorkoutSessionStore.getState()
+      const d = sessionDate ? new Date(`${sessionDate}T12:00:00Z`).toISOString() : new Date().toISOString()
+      addLog({ id: logId, profileId: 'profile-001', sheetId, startedAt: d })
       setSessionStarted(true)
     }
     if (!isOpen) {
@@ -53,47 +55,52 @@ export function WorkoutDrawer() {
   useEffect(() => {
     if (!currentSheetEx || !logId) return
     
-    // Check how many sets were already saved in the global store for this log/exercise
     const allSets = useLogStore.getState().sets
+    const allLogs = useLogStore.getState().logs
+
+    // Find the most recent previous log that has this exercise
+    const prevSetsForEx = allSets.filter(s => s.exerciseId === currentSheetEx.exerciseId && s.logId !== logId)
+    let lastLogId = null
+    if (prevSetsForEx.length > 0) {
+      const relevantLogs = allLogs.filter(l => prevSetsForEx.some(s => s.logId === l.id)).sort((a,b) => b.startedAt.localeCompare(a.startedAt))
+      if (relevantLogs.length > 0) lastLogId = relevantLogs[0].id
+    }
+    const previousSets = lastLogId ? allSets.filter(s => s.logId === lastLogId && s.exerciseId === currentSheetEx.exerciseId).sort((a,b) => a.setNumber - b.setNumber) : []
+
     const saved = allSets.filter(s => s.logId === logId && s.exerciseId === currentSheetEx.exerciseId)
-    
     const targetSets = currentSheetEx.targetSets || 3
     const rows = []
     
-    // Pre-fill saved sets
     for (let i = 0; i < saved.length; i++) {
       rows.push({
         id: `saved-${saved[i].id}`,
         isSaved: true,
         weight: saved[i].weightKg,
         reps: saved[i].reps,
-        isPR: saved[i].isPR
+        isPR: saved[i].isPR,
+        previousStr: previousSets[i] ? `${previousSets[i].weightKg}kg x ${previousSets[i].reps}` : '-'
       })
     }
     
-    // Fill the rest with empty pending sets up to targetSets
     const remaining = Math.max(0, targetSets - saved.length)
     for (let i = 0; i < remaining; i++) {
+      const setIndex = saved.length + i
       rows.push({
         id: `pending-${Date.now()}-${i}`,
         isSaved: false,
-        weight: '',
-        reps: currentSheetEx.targetRepsMin ?? 10,
-        isPR: false
+        weight: previousSets[setIndex] ? previousSets[setIndex].weightKg : '',
+        reps: previousSets[setIndex] ? previousSets[setIndex].reps : (currentSheetEx.targetRepsMin ?? 10),
+        isPR: false,
+        previousStr: previousSets[setIndex] ? `${previousSets[setIndex].weightKg}kg x ${previousSets[setIndex].reps}` : '-'
       })
     }
     
-    // Se não tinha targetSets e não tem salvo, bota pelo menos 1
     if (rows.length === 0) {
       rows.push({
         id: `pending-${Date.now()}-0`,
-        isSaved: false,
-        weight: '',
-        reps: 10,
-        isPR: false
+        isSaved: false, weight: '', reps: 10, isPR: false, previousStr: '-'
       })
     }
-
     setWorkingSets(rows)
   }, [currentExerciseIndex, currentSheetEx, logId])
 
@@ -142,12 +149,25 @@ export function WorkoutDrawer() {
   }
   
   const handleAddSetRow = () => {
+    const allSets = useLogStore.getState().sets
+    const allLogs = useLogStore.getState().logs
+    const prevSetsForEx = allSets.filter(s => s.exerciseId === currentSheetEx.exerciseId && s.logId !== logId)
+    let lastLogId = null
+    if (prevSetsForEx.length > 0) {
+      const relevantLogs = allLogs.filter(l => prevSetsForEx.some(s => s.logId === l.id)).sort((a,b) => b.startedAt.localeCompare(a.startedAt))
+      if (relevantLogs.length > 0) lastLogId = relevantLogs[0].id
+    }
+    const previousSets = lastLogId ? allSets.filter(s => s.logId === lastLogId && s.exerciseId === currentSheetEx.exerciseId).sort((a,b) => a.setNumber - b.setNumber) : []
+    const nextIndex = workingSets.length
+    const prevStr = previousSets[nextIndex] ? `${previousSets[nextIndex].weightKg}kg x ${previousSets[nextIndex].reps}` : '-'
+
     setWorkingSets([...workingSets, {
       id: `pending-${Date.now()}`,
       isSaved: false,
-      weight: '',
-      reps: currentSheetEx?.targetRepsMin ?? 10,
-      isPR: false
+      weight: previousSets[nextIndex] ? previousSets[nextIndex].weightKg : '',
+      reps: previousSets[nextIndex] ? previousSets[nextIndex].reps : (currentSheetEx?.targetRepsMin ?? 10),
+      isPR: false,
+      previousStr: prevStr
     }])
   }
 
@@ -272,24 +292,29 @@ export function WorkoutDrawer() {
 
               {/* Tabela de Séries */}
               <div className="mt-8 mb-4">
-                <div className="flex items-center px-2 mb-2">
-                  <div className="w-12 text-center text-[10px] font-bold text-text-muted uppercase tracking-widest">Série</div>
+                <div className="flex items-center px-1 mb-2">
+                  <div className="w-10 text-center text-[10px] font-bold text-text-muted uppercase tracking-widest">Série</div>
+                  <div className="flex-[1.2] text-center text-[10px] font-bold text-text-muted uppercase tracking-widest">Anterior</div>
                   <div className="flex-1 text-center text-[10px] font-bold text-text-muted uppercase tracking-widest">kg</div>
                   <div className="flex-1 text-center text-[10px] font-bold text-text-muted uppercase tracking-widest">Reps</div>
-                  <div className="w-12 text-center text-[10px] font-bold text-text-muted uppercase tracking-widest"><CheckCircle size={14} className="mx-auto" /></div>
+                  <div className="w-10 text-center text-[10px] font-bold text-text-muted uppercase tracking-widest"><CheckCircle size={14} className="mx-auto" /></div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {workingSets.map((row, index) => (
-                    <div key={row.id} className={`flex items-center gap-2 px-2 py-2 rounded-xl transition-colors ${row.isSaved ? 'bg-brand-action/10 border border-brand-action/20' : 'bg-brand-surface border border-brand-elevated'}`}>
-                      <div className="w-12 text-center">
+                    <div key={row.id} className={`flex items-center gap-1.5 px-1 py-1.5 rounded-lg transition-colors ${row.isSaved ? 'bg-emerald-600/20 border border-emerald-500/30' : 'bg-brand-surface border border-brand-elevated hover:bg-brand-elevated/30'}`}>
+                      <div className="w-10 text-center">
                         {row.isSaved && row.isPR ? (
                           <div className="w-6 h-6 mx-auto bg-yellow-400/20 rounded-full flex items-center justify-center">
                             <Trophy size={12} className="text-yellow-500" />
                           </div>
                         ) : (
-                          <span className={`text-sm font-bold ${row.isSaved ? 'text-brand-action' : 'text-text-secondary'}`}>{index + 1}</span>
+                          <span className={`text-sm font-bold ${row.isSaved ? 'text-emerald-500' : 'text-text-secondary'}`}>{index + 1}</span>
                         )}
+                      </div>
+                      
+                      <div className="flex-[1.2] text-center">
+                        <span className="text-xs font-medium text-text-muted">{row.previousStr}</span>
                       </div>
                       
                       <div className="flex-1">
@@ -297,7 +322,7 @@ export function WorkoutDrawer() {
                           type="number"
                           placeholder="-"
                           disabled={row.isSaved}
-                          className="w-full text-center bg-brand-base border border-brand-elevated rounded-lg py-2 text-base font-bold text-text-primary focus:border-brand-action focus:ring-1 focus:ring-brand-action disabled:opacity-80"
+                          className={`w-full text-center rounded-md py-1.5 text-sm font-bold focus:outline-none focus:ring-1 focus:ring-brand-action disabled:opacity-100 ${row.isSaved ? 'bg-transparent text-emerald-500' : 'bg-brand-base border border-brand-elevated text-text-primary'}`}
                           value={row.weight}
                           onChange={(e) => handleUpdateRow(index, 'weight', e.target.value)}
                         />
@@ -308,20 +333,20 @@ export function WorkoutDrawer() {
                           type="number"
                           placeholder="-"
                           disabled={row.isSaved}
-                          className="w-full text-center bg-brand-base border border-brand-elevated rounded-lg py-2 text-base font-bold text-text-primary focus:border-brand-action focus:ring-1 focus:ring-brand-action disabled:opacity-80"
+                          className={`w-full text-center rounded-md py-1.5 text-sm font-bold focus:outline-none focus:ring-1 focus:ring-brand-action disabled:opacity-100 ${row.isSaved ? 'bg-transparent text-emerald-500' : 'bg-brand-base border border-brand-elevated text-text-primary'}`}
                           value={row.reps}
                           onChange={(e) => handleUpdateRow(index, 'reps', e.target.value)}
                         />
                       </div>
                       
-                      <div className="w-12 text-center flex justify-center">
+                      <div className="w-10 text-center flex justify-center">
                         <button 
                           type="button"
                           disabled={row.isSaved || row.reps === ''}
                           onClick={() => handleSaveSet(index)}
-                          className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${row.isSaved ? 'bg-brand-action text-white' : 'bg-brand-elevated hover:bg-brand-highlight text-text-secondary disabled:opacity-50'}`}
+                          className={`w-8 h-8 rounded-md flex items-center justify-center transition-colors ${row.isSaved ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-500/20' : 'bg-brand-elevated hover:bg-brand-highlight text-text-secondary disabled:opacity-50'}`}
                         >
-                          <CheckCircle size={18} />
+                          <CheckCircle size={16} />
                         </button>
                       </div>
                     </div>
@@ -331,7 +356,7 @@ export function WorkoutDrawer() {
                 <button
                   type="button"
                   onClick={handleAddSetRow}
-                  className="mt-4 flex items-center justify-center gap-2 w-full text-text-muted hover:text-text-primary font-bold text-sm py-2 transition-colors"
+                  className="mt-3 flex items-center justify-center gap-2 w-full bg-brand-surface border border-brand-elevated hover:bg-brand-elevated text-text-secondary font-bold text-sm py-2.5 rounded-xl transition-colors"
                 >
                   <Plus size={16} />
                   Adicionar Série
