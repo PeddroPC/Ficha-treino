@@ -14,6 +14,7 @@ import BodyMetricsPage     from './pages/BodyMetricsPage.jsx'
 // Fase 5: Autenticação
 import LoginPage           from './pages/auth/LoginPage.jsx'
 import RegisterPage        from './pages/auth/RegisterPage.jsx'
+import NotFoundPage        from './pages/NotFoundPage.jsx'
 import { ProtectedRoute }  from './components/auth/ProtectedRoute.jsx'
 import { Bootstrap }       from './components/auth/Bootstrap.jsx'
 
@@ -38,6 +39,9 @@ export default function App() {
               <Route path="perfil"          element={<ProfilePage />} />
             </Route>
           </Route>
+
+          {/* Rota 404 */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
     </Bootstrap>

@@ -12,7 +12,6 @@ import { useState, useMemo, useCallback, useRef } from 'react'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer,
-  BarChart, Bar,
   AreaChart, Area,
 } from 'recharts'
 import { Trophy, TrendingUp, Target, Flame, Search, X as XIcon } from 'lucide-react'
@@ -302,8 +301,8 @@ export default function ProgressaoPage() {
             {mainData.length < 2 ? (
               <div className="h-56 flex flex-col items-center justify-center gap-2">
                 <TrendingUp size={32} className="text-brand-elevated" />
-                <p className="text-text-muted text-sm font-medium">Sem dados neste período</p>
-                <p className="text-text-secondary text-xs">Faça um Registro Rápido para alimentar o gráfico</p>
+                <p className="text-text-muted text-sm font-medium text-center">Você ainda não possui dados suficientes para visualizar sua progressão.</p>
+                <p className="text-text-secondary text-xs mt-1">Registre mais treinos para alimentar o gráfico.</p>
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={248}>

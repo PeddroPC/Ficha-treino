@@ -13,6 +13,7 @@ import { RecentWorkouts }   from '../components/dashboard/RecentWorkouts.jsx'
 import { BodyMetrics }      from '../components/dashboard/BodyMetrics.jsx'
 
 import { FolderOpen, Dumbbell, LineChart } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 export default function DashboardPage() {
   const profile = useProfileStore((s) => s.profile)
@@ -70,20 +71,31 @@ export default function DashboardPage() {
       </div>
 
       {/* ── 1 coluna (Mobile-first) ─────────── */}
-      <div className="flex flex-col gap-6 pt-4">
-        <FichasList
-          selectedSheetId={selectedSheetId}
-          onSelect={setSelectedSheetId}
-        />
-        
-        <ProgressionChart sheetId={selectedSheetId} />
-        
-        <FichaDetail sheetId={selectedSheetId} />
-        
-        <RecentWorkouts />
-        
-        <BodyMetrics />
-      </div>
+      {sheets.length === 0 ? (
+         <div className="bg-brand-surface border border-brand-elevated rounded-xl py-16 px-4 text-center shadow-sm flex flex-col items-center mt-4">
+            <FolderOpen size={40} className="text-text-muted mb-3" />
+            <p className="text-text-primary font-bold text-lg">Nenhuma ficha criada ainda</p>
+            <p className="text-text-secondary text-sm mt-1 mb-6">Crie sua primeira ficha de treino para começar a registrar sua evolução.</p>
+            <Link to="/fichas" className="bg-brand-action hover:bg-brand-action/90 text-white font-bold py-3 px-8 rounded-xl shadow-sm transition-colors">
+              Criar Ficha
+            </Link>
+         </div>
+      ) : (
+        <div className="flex flex-col gap-6 pt-4">
+          <FichasList
+            selectedSheetId={selectedSheetId}
+            onSelect={setSelectedSheetId}
+          />
+          
+          <ProgressionChart sheetId={selectedSheetId} />
+          
+          <FichaDetail sheetId={selectedSheetId} />
+          
+          <RecentWorkouts />
+          
+          <BodyMetrics />
+        </div>
+      )}
     </div>
   )
 }
