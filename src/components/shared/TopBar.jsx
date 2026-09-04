@@ -13,7 +13,7 @@ const PAGE_TITLES = {
   '/perfil': 'Perfil',
 }
 
-import logo from '../../assets/Logo.jpg'
+import logo from '../../assets/Favicon.png'
 
 export function TopBar() {
   const location = useLocation()

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AuthService } from '../../backend/auth/AuthService.js'
 import { Dumbbell } from 'lucide-react'
+import logo from '../../assets/Logo.png'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -38,10 +39,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex flex-col justify-center py-12 px-6 lg:px-8 bg-brand-base">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center mb-6">
-          {/* Logo placeholder preparado para receber o arquivo */}
-          <div className="w-48 h-16 bg-brand-surface flex items-center justify-center border border-brand-elevated rounded">
-            <span className="text-text-muted text-sm font-medium">LOGO PLACEHOLDER</span>
-          </div>
+          <img src={logo} alt="FitProgress Logo" className="w-64 h-auto object-contain" />
         </div>
         <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-text-primary">
           Bem-vindo de volta
