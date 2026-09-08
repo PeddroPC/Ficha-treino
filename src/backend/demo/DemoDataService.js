@@ -47,12 +47,16 @@ export const DemoDataService = {
       console.log('[DemoDataService] Iniciando geração de dados de demonstração...')
       await DemoDataService._injectData(user.id, sheetDemoId)
 
+      // Força a sincronização imediata da fila para garantir a persistência dos dados de demo no Supabase
+      const { syncManager } = await import('../sync/SyncQueueManager.js')
+      await syncManager.processQueue()
+
       // Marcar na nuvem (Supabase Auth Metadata) para garantir idempotência em outros devices,
       // mesmo que o usuário apague os dados gerados localmente e na nuvem.
       await supabase.auth.updateUser({
         data: { has_seen_demo: true }
       })
-      console.log('[DemoDataService] Geração concluída e flag salva na nuvem.')
+      console.log('[DemoDataService] Geração concluída e dados salvos no Supabase.')
 
     } catch (error) {
       console.error('[DemoDataService] Erro ao injetar dados de demonstração:', error)

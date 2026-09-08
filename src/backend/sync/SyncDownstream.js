@@ -124,17 +124,19 @@ export const SyncDownstream = {
         const metricsStore = useMetricsStore.getState()
         metricsStore.setMeasurements((metrics || []).map(mapMetric))
       } else {
-        console.log('[SyncDownstream] O banco de dados online está vazio para os dados deste usuário. Garantindo estado local limpo.')
         const workoutStore = useWorkoutStore.getState()
-        workoutStore.setSheets([])
-        workoutStore.setSheetExercises([])
-
         const logStore = useLogStore.getState()
-        logStore.setLogs([])
-        logStore.setSets([])
 
-        const metricsStore = useMetricsStore.getState()
-        metricsStore.setMeasurements([])
+        // Se tanto a nuvem quanto o local do usuário estiverem vazios, mantemos vazio
+        if (workoutStore.sheets.length === 0 && logStore.logs.length === 0) {
+          console.log('[SyncDownstream] O banco online e local estão vazios para este usuário.')
+          workoutStore.setSheets([])
+          workoutStore.setSheetExercises([])
+          logStore.setLogs([])
+          logStore.setSets([])
+        } else {
+          console.log('[SyncDownstream] O banco online está limpo, preservando dados locais do usuário para sincronização.')
+        }
       }
 
       // 4. Injeta os dados de demonstração caso seja elegível (novo usuário)

@@ -34,6 +34,9 @@ export function Bootstrap({ children }) {
         // 2. SEGUNDO: Baixa os dados atualizados do Supabase para o Zustand local
         // (e gera a ficha de demonstração se for um novo usuário sem dados).
         await SyncDownstream.restoreFromCloud()
+
+        // 3. TERCEIRO: Processa a fila novamente para garantir que os dados gerados pela demo sejam enviados de imediato.
+        await syncManager.processQueue()
       } catch (err) {
         console.error('[Bootstrap] Erro ao sincronizar dados:', err)
       } finally {
