@@ -14,7 +14,7 @@ export const SyncDownstream = {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('Não autenticado')
 
-      // 1. Buscar tudo (simultaneamente para otimizar, RLS já filtra por user_id)
+      // 1. Buscar tudo (simultaneamente para otimizar, com filtro explícito por user_id)
       const [
         { data: exercises },
         { data: sheets },
@@ -24,11 +24,11 @@ export const SyncDownstream = {
         { data: metrics }
       ] = await Promise.all([
         supabase.from('exercises').select('*').or(`user_id.eq.${user.id},user_id.is.null`),
-        supabase.from('sheets').select('*'),
-        supabase.from('sheet_exercises').select('*'),
-        supabase.from('logs').select('*'),
-        supabase.from('sets').select('*'),
-        supabase.from('metrics').select('*')
+        supabase.from('sheets').select('*').eq('user_id', user.id),
+        supabase.from('sheet_exercises').select('*').eq('user_id', user.id),
+        supabase.from('logs').select('*').eq('user_id', user.id),
+        supabase.from('sets').select('*').eq('user_id', user.id),
+        supabase.from('metrics').select('*').eq('user_id', user.id)
       ])
 
       // 2. Mapear de snake_case (banco) para camelCase (Zustand)
@@ -112,7 +112,7 @@ export const SyncDownstream = {
       const hasCloudData = (sheets?.length > 0) || (logs?.length > 0) || (metrics?.length > 0) || (customExercises.length > 0)
 
       if (hasCloudData) {
-        // Atualizar as stores do Zustand localmente
+        // Atualizar as stores do Zustand localmente com os dados reais do usuário vindo da nuvem
         const workoutStore = useWorkoutStore.getState()
         workoutStore.setSheets((sheets || []).map(mapSheet))
         workoutStore.setSheetExercises((sheetExercises || []).map(mapSheetExercise))
@@ -124,7 +124,17 @@ export const SyncDownstream = {
         const metricsStore = useMetricsStore.getState()
         metricsStore.setMeasurements((metrics || []).map(mapMetric))
       } else {
-        console.log('[SyncDownstream] O banco de dados online está vazio para os dados deste usuário. Preservando os dados locais do usuário.')
+        console.log('[SyncDownstream] O banco de dados online está vazio para os dados deste usuário. Garantindo estado local limpo.')
+        const workoutStore = useWorkoutStore.getState()
+        workoutStore.setSheets([])
+        workoutStore.setSheetExercises([])
+
+        const logStore = useLogStore.getState()
+        logStore.setLogs([])
+        logStore.setSets([])
+
+        const metricsStore = useMetricsStore.getState()
+        metricsStore.setMeasurements([])
       }
 
       // 4. Injeta os dados de demonstração caso seja elegível (novo usuário)

@@ -1,7 +1,7 @@
 import { supabase } from '../supabaseClient.js'
 import useAuthStore from '../../stores/useAuthStore.js'
 import { setActiveUserId } from '../../lib/localStorage.js'
-
+import { switchActiveUser, resetAllStores } from '../../lib/storeReset.js'
 import useProfileStore from '../../stores/useProfileStore.js'
 
 export const AuthService = {
@@ -21,9 +21,9 @@ export const AuthService = {
     return subscription
   },
 
-  _handleSessionUpdate: (session) => {
+  _handleSessionUpdate: async (session) => {
     if (session?.user) {
-      setActiveUserId(session.user.id)
+      await switchActiveUser(session.user.id)
       useAuthStore.getState().setUserAndSession(session.user, session)
 
       const profileStore = useProfileStore.getState()
@@ -37,6 +37,7 @@ export const AuthService = {
         })
       }
     } else {
+      resetAllStores()
       setActiveUserId(null)
       useAuthStore.getState().clearSession()
     }
@@ -56,14 +57,17 @@ export const AuthService = {
     // Isso evita que o ProtectedRoute expulse o usuário de volta para o login
     // enquanto o listener global (onAuthStateChange) ainda não disparou.
     if (data.session) {
-      AuthService._handleSessionUpdate(data.session)
+      await AuthService._handleSessionUpdate(data.session)
     }
     
     return data
   },
 
   signOut: async () => {
+    resetAllStores()
+    setActiveUserId(null)
     const { error } = await supabase.auth.signOut()
     if (error) throw error
   }
 }
+
