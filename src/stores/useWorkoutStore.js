@@ -46,6 +46,20 @@ const useWorkoutStore = create(
           return { sheets: newSheets }
         }),
 
+      updateSheetExercise: (id, updates) =>
+        set((state) => {
+          const newSheetExercises = state.sheetExercises.map((se) =>
+            se.id === id ? { ...se, ...updates } : se
+          )
+          
+          const updatedSe = newSheetExercises.find((se) => se.id === id)
+          if (updatedSe) {
+            useSyncQueueStore.getState().enqueue('sheet_exercises', 'upsert', updatedSe, id)
+          }
+
+          return { sheetExercises: newSheetExercises }
+        }),
+
       removeSheet: (id) =>
         set((state) => {
           // Precisamos deletar os exercícios vinculados na fila PRIMEIRO para respeitar as chaves estrangeiras

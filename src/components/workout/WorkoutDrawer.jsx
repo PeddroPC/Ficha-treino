@@ -4,7 +4,7 @@
 // Otimizado para mobile-first com a nova paleta de cores e visão tabular
 // ============================================================
 import { useState, useEffect, useCallback } from 'react'
-import { X, ChevronLeft, ChevronRight, CheckCircle, Trophy, Dumbbell, Plus } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, CheckCircle, Trophy, Dumbbell, Plus, RefreshCw, Search } from 'lucide-react'
 import useWorkoutSessionStore from '../../stores/useWorkoutSessionStore.js'
 import useWorkoutStore        from '../../stores/useWorkoutStore.js'
 import useExerciseStore       from '../../stores/useExerciseStore.js'
@@ -25,6 +25,8 @@ export function WorkoutDrawer() {
   const [sessionStarted, setSessionStarted] = useState(false)
   const [showPRBadge, setShowPRBadge] = useState(false)
   const [workingSets, setWorkingSets] = useState([])
+  const [showSwapModal, setShowSwapModal] = useState(false)
+  const [swapSearch, setSwapSearch] = useState('')
 
   const fichaExercises = [...sheetExercises]
     .filter((se) => se.sheetId === sheetId)
@@ -147,6 +149,28 @@ export function WorkoutDrawer() {
     setWorkingSets(copy)
     nextSet()
   }
+
+  const handleUnsaveSet = (index) => {
+    if (!currentSheetEx || !logId) return
+    const row = workingSets[index]
+    if (!row.isSaved) return
+
+    const allSets = useLogStore.getState().sets
+    const savedSet = allSets.find(s => 
+      s.logId === logId && 
+      s.exerciseId === currentSheetEx.exerciseId && 
+      s.setNumber === index + 1
+    )
+
+    if (savedSet) {
+      useLogStore.getState().removeSet(savedSet.id)
+    }
+
+    const copy = [...workingSets]
+    copy[index] = { ...row, isSaved: false, isPR: false }
+    setWorkingSets(copy)
+  }
+
   
   const handleAddSetRow = () => {
     const allSets = useLogStore.getState().sets
@@ -264,10 +288,19 @@ export function WorkoutDrawer() {
                 <div className="w-12 h-12 bg-brand-action/20 rounded-xl flex items-center justify-center shrink-0">
                   <Dumbbell size={24} className="text-brand-action" strokeWidth={2.5} />
                 </div>
-                <div>
-                  <h2 className="text-text-primary text-2xl font-extrabold leading-tight">
-                    {currentEx.name}
-                  </h2>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-text-primary text-2xl font-extrabold leading-tight">
+                      {currentEx.name}
+                    </h2>
+                    <button 
+                      onClick={() => setShowSwapModal(true)}
+                      className="text-brand-action hover:bg-brand-action/10 p-2 rounded-full transition-colors flex shrink-0 items-center justify-center"
+                      title="Trocar Exercício"
+                    >
+                      <RefreshCw size={20} />
+                    </button>
+                  </div>
                   <p className="text-text-secondary text-sm mt-1 font-medium">
                     {currentSheetEx.targetSets && (
                       <span className="text-text-primary font-bold">{currentSheetEx.targetSets} Séries</span>
@@ -342,8 +375,8 @@ export function WorkoutDrawer() {
                       <div className="w-10 text-center flex justify-center">
                         <button 
                           type="button"
-                          disabled={row.isSaved || row.reps === ''}
-                          onClick={() => handleSaveSet(index)}
+                          disabled={!row.isSaved && row.reps === ''}
+                          onClick={() => row.isSaved ? handleUnsaveSet(index) : handleSaveSet(index)}
                           className={`w-8 h-8 rounded-md flex items-center justify-center transition-colors ${row.isSaved ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-500/20' : 'bg-brand-elevated hover:bg-brand-highlight text-text-secondary disabled:opacity-50'}`}
                         >
                           <CheckCircle size={16} />
@@ -390,6 +423,56 @@ export function WorkoutDrawer() {
           </div>
         )}
       </div>
+
+      {/* ── Modal de Troca de Exercício ─────────────────────── */}
+      {showSwapModal && (
+        <div className="fixed inset-0 z-[80] flex flex-col bg-brand-base animate-in slide-in-from-bottom-4 duration-200">
+          <div className="flex items-center gap-4 px-5 pt-5 pb-4 border-b border-brand-elevated bg-brand-surface">
+            <button onClick={() => setShowSwapModal(false)} className="w-10 h-10 rounded-full hover:bg-brand-elevated text-text-secondary flex items-center justify-center">
+              <ChevronLeft size={24} />
+            </button>
+            <h3 className="text-lg font-bold text-text-primary flex-1">Trocar Exercício</h3>
+          </div>
+          
+          <div className="p-4 border-b border-brand-elevated bg-brand-surface">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={18} />
+              <input
+                type="text"
+                placeholder="Buscar exercício..."
+                value={swapSearch}
+                onChange={(e) => setSwapSearch(e.target.value)}
+                className="w-full bg-brand-base border border-brand-elevated rounded-xl py-3 pl-10 pr-4 text-text-primary focus:outline-none focus:border-brand-action"
+              />
+            </div>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+            <div className="space-y-2">
+              {exercises
+                .filter(e => e.name.toLowerCase().includes(swapSearch.toLowerCase()) && e.id !== currentSheetEx?.exerciseId)
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map(ex => (
+                  <button
+                    key={ex.id}
+                    onClick={() => {
+                      useWorkoutStore.getState().updateSheetExercise(currentSheetEx.id, { exerciseId: ex.id });
+                      setShowSwapModal(false);
+                      setSwapSearch('');
+                    }}
+                    className="w-full text-left p-4 rounded-xl bg-brand-surface border border-brand-elevated hover:border-brand-action hover:bg-brand-action/5 transition-all flex items-center justify-between group"
+                  >
+                    <div>
+                      <h4 className="font-bold text-text-primary">{ex.name}</h4>
+                      <p className="text-xs text-text-muted mt-1 capitalize">{ex.muscleGroup}</p>
+                    </div>
+                    <RefreshCw size={18} className="text-brand-action opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </button>
+                ))}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

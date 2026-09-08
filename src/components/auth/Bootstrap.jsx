@@ -20,17 +20,25 @@ export function Bootstrap({ children }) {
   useEffect(() => {
     if (!isAuthenticated) return
 
-    // 1. Baixa os dados existentes do Supabase para o Zustand local (com trava de segurança)
-    SyncDownstream.restoreFromCloud().catch(err => {
-      console.error('Erro ao sincronizar dados do Supabase:', err)
-    })
+    const syncAll = async () => {
+      try {
+        // 1. PRIMEIRO: Processa a fila de envio. Assim, qualquer alteração local
+        // feita offline (como apagar ou criar treinos) é enviada para a nuvem.
+        await syncManager.processQueue()
+        
+        // 2. SEGUNDO: Baixa os dados atualizados do Supabase para o Zustand local.
+        await SyncDownstream.restoreFromCloud()
+      } catch (err) {
+        console.error('Erro ao sincronizar dados:', err)
+      }
+    }
+
+    syncAll()
 
     const handleOnline = () => {
       syncManager.processQueue()
     }
 
-    // 2. Processa a fila de envio no login e toda vez que voltar a ficar online
-    syncManager.processQueue()
     window.addEventListener('online', handleOnline)
     
     return () => window.removeEventListener('online', handleOnline)
