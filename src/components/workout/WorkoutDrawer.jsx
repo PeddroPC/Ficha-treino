@@ -4,7 +4,7 @@
 // Otimizado para mobile-first com a nova paleta de cores e visão tabular
 // ============================================================
 import { useState, useEffect, useCallback } from 'react'
-import { X, ChevronLeft, ChevronRight, CheckCircle, Trophy, Dumbbell, Plus, RefreshCw, Search } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, CheckCircle, Trophy, Dumbbell, Plus, RefreshCw, Search, TrendingUp } from 'lucide-react'
 import useWorkoutSessionStore from '../../stores/useWorkoutSessionStore.js'
 import useWorkoutStore        from '../../stores/useWorkoutStore.js'
 import useExerciseStore       from '../../stores/useExerciseStore.js'
@@ -87,11 +87,24 @@ export function WorkoutDrawer() {
     const remaining = Math.max(0, targetSets - saved.length)
     for (let i = 0; i < remaining; i++) {
       const setIndex = saved.length + i
+      let w = previousSets[setIndex] ? previousSets[setIndex].weightKg : '';
+      let r = previousSets[setIndex] ? previousSets[setIndex].reps : '';
+
+      if ((!w || w === '') && rows.length > 0) {
+        w = rows[rows.length - 1].weight;
+      }
+      if ((!r || r === '') && rows.length > 0) {
+        r = rows[rows.length - 1].reps;
+      }
+      if (!r || r === '') {
+        r = currentSheetEx.targetRepsMin ?? 10;
+      }
+
       rows.push({
         id: `pending-${Date.now()}-${i}`,
         isSaved: false,
-        weight: previousSets[setIndex] ? previousSets[setIndex].weightKg : '',
-        reps: previousSets[setIndex] ? previousSets[setIndex].reps : (currentSheetEx.targetRepsMin ?? 10),
+        weight: w,
+        reps: r,
         isPR: false,
         previousStr: previousSets[setIndex] ? `${previousSets[setIndex].weightKg}kg x ${previousSets[setIndex].reps}` : '-'
       })
@@ -146,6 +159,15 @@ export function WorkoutDrawer() {
 
     const copy = [...workingSets]
     copy[index] = { ...row, weight: w, reps: r, isSaved: true, isPR }
+
+    // Cascata de carga e reps para as próximas séries não preenchidas
+    for (let i = index + 1; i < copy.length; i++) {
+      if (!copy[i].isSaved && (!copy[i].weight || copy[i].weight === '')) {
+        copy[i].weight = w;
+        copy[i].reps = r;
+      }
+    }
+
     setWorkingSets(copy)
     nextSet()
   }
@@ -185,11 +207,24 @@ export function WorkoutDrawer() {
     const nextIndex = workingSets.length
     const prevStr = previousSets[nextIndex] ? `${previousSets[nextIndex].weightKg}kg x ${previousSets[nextIndex].reps}` : '-'
 
+    let w = previousSets[nextIndex] ? previousSets[nextIndex].weightKg : '';
+    let r = previousSets[nextIndex] ? previousSets[nextIndex].reps : '';
+
+    if ((!w || w === '') && workingSets.length > 0) {
+      w = workingSets[workingSets.length - 1].weight;
+    }
+    if ((!r || r === '') && workingSets.length > 0) {
+      r = workingSets[workingSets.length - 1].reps;
+    }
+    if (!r || r === '') {
+      r = currentSheetEx?.targetRepsMin ?? 10;
+    }
+
     setWorkingSets([...workingSets, {
       id: `pending-${Date.now()}`,
       isSaved: false,
-      weight: previousSets[nextIndex] ? previousSets[nextIndex].weightKg : '',
-      reps: previousSets[nextIndex] ? previousSets[nextIndex].reps : (currentSheetEx?.targetRepsMin ?? 10),
+      weight: w,
+      reps: r,
       isPR: false,
       previousStr: prevStr
     }])
@@ -208,6 +243,18 @@ export function WorkoutDrawer() {
     }
     closeSession()
   }
+
+  // Calcular sugestão de progressão
+  const maxReps = currentSheetEx?.targetRepsMax;
+  const targetSetsCount = currentSheetEx?.targetSets || 0;
+  const savedWorkingSets = workingSets.filter((s) => s.isSaved);
+  
+  const showProgressionSuggestion = Boolean(
+    maxReps &&
+    targetSetsCount > 0 &&
+    savedWorkingSets.length >= targetSetsCount &&
+    savedWorkingSets.every((s) => Number(s.reps) >= maxReps)
+  );
 
   if (!isOpen) return null
 
@@ -317,6 +364,19 @@ export function WorkoutDrawer() {
                 <div className="flex items-center gap-2 bg-amber-100 border border-amber-300 rounded-xl px-4 py-3 mb-4 animate-in fade-in duration-150">
                   <Trophy size={18} className="text-amber-500" />
                   <span className="text-amber-700 text-sm font-bold">Novo Recorde Pessoal! 🏆</span>
+                </div>
+              )}
+
+              {/* Sugestão de Progressão */}
+              {showProgressionSuggestion && (
+                <div className="flex flex-col gap-1 bg-brand-action/10 border border-brand-action/30 rounded-xl px-4 py-3 mb-4 animate-in fade-in duration-150">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp size={18} className="text-brand-action" />
+                    <span className="text-brand-action text-sm font-bold">↑ Progressão disponível</span>
+                  </div>
+                  <p className="text-text-secondary text-xs mt-1">
+                    Você atingiu o topo da faixa de repetições em todas as séries. Considere aumentar a carga no próximo treino.
+                  </p>
                 </div>
               )}
 
